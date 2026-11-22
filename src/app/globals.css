@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #1a1614;
+    --foreground: #f6f3ee;
+    --font-serif: "Cinzel", "Playfair Display", Georgia, serif;
+    --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background-color: #1a1614;
+    color: #f6f3ee;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0b0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d332f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d48b46;
+}
+
+/* Ember and copper glow utility effects */
+.glow-ember {
+  box-shadow: 0 0 25px -5px rgba(224, 90, 27, 0.35);
+}
+
+.glow-copper {
+  box-shadow: 0 0 25px -5px rgba(212, 139, 70, 0.3);
+}
+
+.glow-malt {
+  box-shadow: 0 0 25px -5px rgba(235, 193, 126, 0.25);
+}
+
+/* Subtle ember gradient overlay for premium grill feel */
+.bg-grill-pattern {
+  background-image: radial-gradient(
+    circle at 50% 0%,
+    rgba(224, 90, 27, 0.08) 0%,
+    rgba(26, 22, 20, 0) 70%
+  );
+}
+
+.bg-ember-radial {
+  background: radial-gradient(circle at 50% 50%, rgba(224, 90, 27, 0.15) 0%, rgba(13, 11, 10, 0.95) 80%);
+}

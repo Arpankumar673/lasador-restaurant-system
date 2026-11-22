@@ -1,0 +1,18 @@
+{
+  "name": "L'Asador – Grill & Brew",
+  "short_name": "L'Asador",
+  "description": "Artisanal Wood-Fired Grill & Craft Microbrewery Restaurant Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0B0A",
+  "theme_color": "#1A1614",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["food", "restaurant", "lifestyle"]
+}

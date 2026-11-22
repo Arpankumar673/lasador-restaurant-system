@@ -1,0 +1,44 @@
+{
+  "name": "lasador-restaurant-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Independent restaurant management and QR ordering platform for L'Asador – Grill & Brew, Mohali",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "test": "node test/verify-foundation.mjs && node test/phase2-security.test.mjs && node test/phase3-admin.test.mjs && node test/phase4-to-8-e2e.test.mjs && node test/runtime-e2e-integration.test.mjs",
+    "test:phase1": "node test/verify-foundation.mjs",
+    "test:phase2": "node test/phase2-security.test.mjs",
+    "test:phase3": "node test/phase3-admin.test.mjs",
+    "test:e2e": "node test/phase4-to-8-e2e.test.mjs",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\""
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.46.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.11.17",
+    "lucide-react": "^0.460.0",
+    "next": "^14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.18",
+    "postcss": "^8.4.49",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3"
+  }
+}

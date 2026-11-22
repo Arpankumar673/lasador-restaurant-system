@@ -1,0 +1,351 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { getCurrentStaff } from "@/features/auth/server";
+import { hasPermission } from "@/features/auth/permissions";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { logAuditEvent } from "@/features/audit/logger";
+import { generateSecureQrToken, hashQrToken } from "@/lib/utils/qr";
+
+export interface TableActionResult {
+  success: boolean;
+  error?: string;
+  message?: string;
+  rawToken?: string;
+}
+
+const tableSchema = z.object({
+  table_number: z.string().min(1, "Table number is required"),
+  label: z.string().optional().nullable(),
+  zone: z.string().min(1, "Zone is required").default("Main Dining"),
+  capacity: z.number().int().min(1, "Capacity must be at least 1").default(4),
+  is_active: z.boolean().default(true),
+});
+
+/**
+ * Creates a new dining table and automatically provisions its initial high-entropy QR token.
+ */
+export async function createDiningTable(formData: FormData): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized. You do not have permission to manage dining tables." };
+  }
+
+  const tableNumber = String(formData.get("tableNumber") || "").trim().toUpperCase();
+  const label = String(formData.get("label") || "").trim() || null;
+  const zone = String(formData.get("zone") || "Main Dining").trim();
+  const capacity = Number(formData.get("capacity") || 4);
+  const isActive = formData.get("isActive") !== "false";
+
+  const parsed = tableSchema.safeParse({
+    table_number: tableNumber,
+    label,
+    zone,
+    capacity,
+    is_active: isActive,
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message || "Invalid table parameters." };
+  }
+
+  const supabase = createAdminClient();
+
+  // Insert dining table
+  const { data: newTable, error: tableError } = await supabase
+    .from("dining_tables")
+    .insert(parsed.data)
+    .select()
+    .single();
+
+  if (tableError) {
+    if (tableError.code === "23505") {
+      return { success: false, error: `Table '${tableNumber}' already exists.` };
+    }
+    return { success: false, error: tableError.message };
+  }
+
+  // Generate initial secure QR token
+  const rawToken = generateSecureQrToken();
+  const tokenHash = hashQrToken(rawToken);
+
+  const { error: tokenError } = await supabase.from("table_qr_tokens").insert({
+    table_id: newTable.id,
+    token_hash: tokenHash,
+    is_active: true,
+  });
+
+  if (tokenError) {
+    console.error("Failed to generate initial QR token:", tokenError.message);
+  }
+
+  await logAuditEvent({
+    actorId: caller.userId,
+    action: "table:create",
+    entity: "dining_tables",
+    entityId: newTable.id,
+    details: { table_number: tableNumber, zone, capacity },
+  });
+
+  revalidatePath("/admin/tables");
+  return {
+    success: true,
+    message: `Table '${tableNumber}' created with active QR token.`,
+    rawToken,
+  };
+}
+
+/**
+ * Updates table details (label, zone, capacity, active status).
+ */
+export async function updateDiningTable(formData: FormData): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized." };
+  }
+
+  const id = String(formData.get("id") || "").trim();
+  if (!id) return { success: false, error: "Missing table ID." };
+
+  const tableNumber = String(formData.get("tableNumber") || "").trim().toUpperCase();
+  const label = String(formData.get("label") || "").trim() || null;
+  const zone = String(formData.get("zone") || "Main Dining").trim();
+  const capacity = Number(formData.get("capacity") || 4);
+  const isActive = formData.get("isActive") !== "false";
+
+  const parsed = tableSchema.safeParse({
+    table_number: tableNumber,
+    label,
+    zone,
+    capacity,
+    is_active: isActive,
+  });
+
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message || "Invalid table parameters." };
+  }
+
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from("dining_tables")
+    .update({
+      ...parsed.data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    if (error.code === "23505") {
+      return { success: false, error: `Table '${tableNumber}' already exists.` };
+    }
+    return { success: false, error: error.message };
+  }
+
+  await logAuditEvent({
+    actorId: caller.userId,
+    action: "table:update",
+    entity: "dining_tables",
+    entityId: id,
+    details: parsed.data,
+  });
+
+  revalidatePath("/admin/tables");
+  return { success: true, message: `Table '${tableNumber}' updated successfully.` };
+}
+
+/**
+ * Deactivates or activates a dining table.
+ */
+export async function toggleTableStatus(id: string, isActive: boolean): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized." };
+  }
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("dining_tables")
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) return { success: false, error: error.message };
+
+  await logAuditEvent({
+    actorId: caller.userId,
+    action: "table:toggle_status",
+    entity: "dining_tables",
+    entityId: id,
+    details: { isActive },
+  });
+
+  revalidatePath("/admin/tables");
+  return { success: true, message: "Table status updated." };
+}
+
+/**
+ * Regenerates a table's QR token, revoking the previous one immediately.
+ */
+export async function regenerateQrToken(tableId: string): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized." };
+  }
+
+  const supabase = createAdminClient();
+
+  // 1. Revoke existing active tokens for this table
+  await supabase
+    .from("table_qr_tokens")
+    .update({
+      is_active: false,
+      revoked_at: new Date().toISOString(),
+    })
+    .eq("table_id", tableId)
+    .eq("is_active", true);
+
+  // 2. Generate new high-entropy token
+  const rawToken = generateSecureQrToken();
+  const tokenHash = hashQrToken(rawToken);
+
+  const { error: insertError } = await supabase.from("table_qr_tokens").insert({
+    table_id: tableId,
+    token_hash: tokenHash,
+    is_active: true,
+  });
+
+  if (insertError) {
+    return { success: false, error: insertError.message };
+  }
+
+  await logAuditEvent({
+    actorId: caller.userId,
+    action: "qr:regenerate",
+    entity: "table_qr_tokens",
+    entityId: tableId,
+  });
+
+  revalidatePath("/admin/tables");
+  return {
+    success: true,
+    message: "New QR token generated. Old QR code has been revoked.",
+    rawToken,
+  };
+}
+
+/**
+ * Revokes a table's active QR code without issuing a new one (emergency lock).
+ */
+export async function revokeQrToken(tableId: string): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized." };
+  }
+
+  const supabase = createAdminClient();
+
+  const { error } = await supabase
+    .from("table_qr_tokens")
+    .update({
+      is_active: false,
+      revoked_at: new Date().toISOString(),
+    })
+    .eq("table_id", tableId)
+    .eq("is_active", true);
+
+  if (error) return { success: false, error: error.message };
+
+  await logAuditEvent({
+    actorId: caller.userId,
+    action: "qr:revoke",
+    entity: "table_qr_tokens",
+    entityId: tableId,
+  });
+
+  revalidatePath("/admin/tables");
+  return { success: true, message: "QR token revoked. Table is locked for digital ordering." };
+}
+
+/**
+ * Resolves a raw QR token from customer scanning into an active Dining Table and Table Session.
+ * Verifies token hash, checks table availability, and retrieves or creates an active session.
+ */
+export async function resolveTableByQrToken(rawToken: string) {
+  if (!rawToken || rawToken.length < 16) {
+    return { valid: false, error: "Invalid QR code format." };
+  }
+
+  const tokenHash = hashQrToken(rawToken);
+  const supabase = createAdminClient();
+
+  // Find active, unrevoked QR token
+  const { data: tokenRecord, error: tokenError } = await supabase
+    .from("table_qr_tokens")
+    .select(`
+      id,
+      table_id,
+      is_active,
+      revoked_at,
+      dining_table:dining_tables (
+        id,
+        table_number,
+        label,
+        zone,
+        capacity,
+        is_active
+      )
+    `)
+    .eq("token_hash", tokenHash)
+    .eq("is_active", true)
+    .is("revoked_at", null)
+    .maybeSingle();
+
+  if (tokenError || !tokenRecord || !tokenRecord.dining_table) {
+    return { valid: false, error: "QR code is expired, revoked, or invalid. Please request staff assistance." };
+  }
+
+  const table = Array.isArray(tokenRecord.dining_table)
+    ? tokenRecord.dining_table[0]
+    : tokenRecord.dining_table;
+
+  if (!table.is_active) {
+    return { valid: false, error: `Table '${table.table_number}' is currently inactive.` };
+  }
+
+  // Retrieve or open an active table session
+  let { data: session } = await supabase
+    .from("table_sessions")
+    .select("*")
+    .eq("table_id", table.id)
+    .eq("status", "active")
+    .order("opened_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!session) {
+    // Open new session
+    const sessionTokenHash = hashQrToken(generateSecureQrToken());
+    const { data: newSession, error: sessionError } = await supabase
+      .from("table_sessions")
+      .insert({
+        table_id: table.id,
+        session_token_hash: sessionTokenHash,
+        status: "active",
+        guest_count: 2,
+      })
+      .select()
+      .single();
+
+    if (sessionError || !newSession) {
+      return { valid: false, error: "Failed to initialize table dining session." };
+    }
+    session = newSession;
+  }
+
+  return {
+    valid: true,
+    table,
+    session,
+  };
+}
