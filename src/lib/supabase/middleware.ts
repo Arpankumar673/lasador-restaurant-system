@@ -75,7 +75,34 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Authenticate user session
+  const pathname = request.nextUrl.pathname;
+  const isProtectedPath =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/kitchen") ||
+    pathname.startsWith("/bar");
+  const isPublicAuthPath = PUBLIC_AUTH_PATHS.some((p) => pathname.startsWith(p));
+
+  // 1. Fast path for public non-auth routes (e.g. customer QR menu /t/*, guest landing /, /api/health)
+  // Skip expensive auth API roundtrips entirely.
+  if (!isProtectedPath && !isPublicAuthPath) {
+    return response;
+  }
+
+  // 2. Fast path for unauthenticated access to protected routes
+  // If no Supabase auth token cookie exists, redirect immediately without network overhead.
+  const hasAuthTokenCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+
+  if (isProtectedPath && !isPublicAuthPath && !hasAuthTokenCookie) {
+    const redirectUrl = new URL("/admin/login", request.url);
+    if (pathname !== "/admin") {
+      redirectUrl.searchParams.set("next", pathname);
+    }
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // 3. Authenticate active user session
   let user = null;
   try {
     const {
@@ -86,14 +113,7 @@ export async function updateSession(request: NextRequest) {
     console.warn("Middleware auth getUser warning:", error);
   }
 
-  const pathname = request.nextUrl.pathname;
-  const isProtectedPath =
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/kitchen") ||
-    pathname.startsWith("/bar");
-  const isPublicAuthPath = PUBLIC_AUTH_PATHS.some((p) => pathname.startsWith(p));
-
-  // 1. If trying to access protected staff route while unauthenticated
+  // 4. If trying to access protected staff route while unauthenticated
   if (isProtectedPath && !isPublicAuthPath && !user) {
     const redirectUrl = new URL("/admin/login", request.url);
     if (pathname !== "/admin") {
@@ -102,7 +122,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 2. If trying to access /admin/login while already authenticated
+  // 5. If trying to access /admin/login while already authenticated
   if (isPublicAuthPath && user) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }

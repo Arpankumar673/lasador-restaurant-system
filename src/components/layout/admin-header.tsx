@@ -24,7 +24,7 @@ export function AdminHeader({ staff }: AdminHeaderProps) {
     <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-asador-border bg-asador-deep/95 px-4 sm:px-6 backdrop-blur-md">
       {/* Brand logo & portal title */}
       <div className="flex items-center space-x-3">
-        <Link href="/admin" className="flex items-center space-x-2.5 group">
+        <Link href="/admin" prefetch={false} className="flex items-center space-x-2.5 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-asador bg-gradient-to-br from-asador-ember to-asador-flame text-asador-parchment shadow-ember-glow">
             <Flame className="h-5 w-5" />
           </div>

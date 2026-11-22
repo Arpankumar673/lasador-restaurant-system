@@ -142,7 +142,7 @@ export default async function AdminOverviewPage() {
 
           <div className="flex flex-wrap gap-2">
             {canManageStaff && (
-              <Link href="/admin/staff">
+              <Link prefetch={false} href="/admin/staff">
                 <Button size="sm" variant="default" className="text-xs">
                   <Users className="h-3.5 w-3.5 mr-1.5" />
                   Staff Roster
@@ -150,7 +150,7 @@ export default async function AdminOverviewPage() {
               </Link>
             )}
             {canManageSettings && (
-              <Link href="/admin/settings">
+              <Link prefetch={false} href="/admin/settings">
                 <Button size="sm" variant="outline" className="text-xs">
                   <Settings className="h-3.5 w-3.5 mr-1.5" />
                   Settings
@@ -183,7 +183,7 @@ export default async function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="pt-0">
             {canManageStaff ? (
-              <Link href="/admin/staff" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-ember py-1 transition-colors">
+              <Link prefetch={false} href="/admin/staff" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-ember py-1 transition-colors">
                 <span>Manage Staff</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
@@ -215,7 +215,7 @@ export default async function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="pt-0">
             {canManageSettings ? (
-              <Link href="/admin/settings" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-copper py-1 transition-colors">
+              <Link prefetch={false} href="/admin/settings" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-copper py-1 transition-colors">
                 <span>Configure Settings</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
@@ -247,7 +247,7 @@ export default async function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="pt-0">
             {canViewAudit ? (
-              <Link href="/admin/audit-logs" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-malt py-1 transition-colors">
+              <Link prefetch={false} href="/admin/audit-logs" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-malt py-1 transition-colors">
                 <span>Inspect Logs</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>

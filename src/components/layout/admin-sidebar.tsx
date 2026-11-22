@@ -125,6 +125,7 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={false}
                   className={cn(
                     "group flex items-center justify-between rounded-asador px-3 py-2.5 text-sm font-medium transition-all",
                     isActive

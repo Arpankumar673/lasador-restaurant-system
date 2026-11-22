@@ -2,8 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../../types/database.types";
 import { getServerEnv } from "../validations/env";
 
+let cachedAdminClient: ReturnType<typeof createClient<Database>> | null = null;
+
 /**
- * Creates an administrative Supabase client using the SUPABASE_SERVICE_ROLE_KEY.
+ * Creates or reuses an administrative Supabase client using the SUPABASE_SERVICE_ROLE_KEY.
+ * Reusing the instance maintains HTTP keep-alive connections across server operations.
  *
  * CRITICAL SECURITY CONSTRAINTS:
  * 1. This client MUST NEVER be imported, instantiated, or referenced in client-side code.
@@ -17,9 +20,13 @@ export function createAdminClient() {
     );
   }
 
+  if (cachedAdminClient) {
+    return cachedAdminClient;
+  }
+
   const env = getServerEnv();
 
-  return createClient<Database>(
+  cachedAdminClient = createClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
     {
@@ -29,4 +36,6 @@ export function createAdminClient() {
       },
     }
   );
+
+  return cachedAdminClient;
 }

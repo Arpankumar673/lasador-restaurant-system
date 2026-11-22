@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -14,9 +15,10 @@ export interface AuthenticatedStaff {
 
 /**
  * Retrieves the currently authenticated staff member on the server.
+ * Memoized per request using React.cache to eliminate redundant Supabase auth/db calls.
  * Returns null if no active session or if profile is inactive.
  */
-export async function getCurrentStaff(): Promise<AuthenticatedStaff | null> {
+export const getCurrentStaff = cache(async (): Promise<AuthenticatedStaff | null> => {
   const supabase = createServerSupabaseClient();
 
   const {
@@ -44,7 +46,7 @@ export async function getCurrentStaff(): Promise<AuthenticatedStaff | null> {
     email: user.email || profile.email,
     profile,
   };
-}
+});
 
 /**
  * Requires an authenticated staff session.
