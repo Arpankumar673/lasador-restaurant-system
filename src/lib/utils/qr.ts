@@ -220,9 +220,12 @@ class SimpleQrCode {
       }
     }
 
-    // Dark module
-    this.modules[4 * Math.floor(size / 4) + 9][8] = true;
-    this.isFunction[4 * Math.floor(size / 4) + 9][8] = true;
+    // Dark module at (8, size - 8)
+    const darkRow = this.size - 8;
+    if (darkRow >= 0 && darkRow < this.size && this.size > 8) {
+      this.modules[darkRow][8] = true;
+      this.isFunction[darkRow][8] = true;
+    }
   }
 
   private drawFinderPattern(x: number, y: number) {
@@ -290,7 +293,7 @@ class SimpleQrCode {
 
         for (let col = 0; col < 2; col++) {
           const x = right - col;
-          if (!this.isFunction[y][x]) {
+          if (x >= 0 && x < this.size && y >= 0 && y < this.size && !this.isFunction[y][x]) {
             const bit = bitIndex < bits.length ? bits[bitIndex++] : (x + y) % 2 === 0;
             // Standard QR mask condition: (row + col) % 3 === 0
             const mask = (x + y) % 3 === 0;
