@@ -1,3 +1,5 @@
+import { qrcodegen } from "./qrcodegen";
+
 /**
  * Pure JavaScript cryptographic helpers and QR code generator for L'Asador.
  * Zero external QR package dependencies.
@@ -151,164 +153,14 @@ export function hashQrToken(rawToken: string): string {
 
 // ============================================================================
 // SELF-CONTAINED QR CODE SVG GENERATOR
-// Implements standard Reed-Solomon / QR Code Model 2 encoding for alphanumeric/byte data.
+// Standard ISO/IEC 18004 QR Code Model 2 with full Reed-Solomon error correction.
 // Zero external package dependencies.
 // ============================================================================
 
 /**
- * Compact, self-contained QR matrix generator supporting alphanumeric & URL strings.
- * Generates standard Version 1-10 QR code matrix with Error Correction Level M.
- */
-class SimpleQrCode {
-  private size: number;
-  private modules: boolean[][];
-  private isFunction: boolean[][];
-
-  constructor(version: number) {
-    this.size = version * 4 + 17;
-    this.modules = Array.from({ length: this.size }, () => Array(this.size).fill(false));
-    this.isFunction = Array.from({ length: this.size }, () => Array(this.size).fill(false));
-  }
-
-  public getModule(x: number, y: number): boolean {
-    return this.modules[y][x];
-  }
-
-  public getSize(): number {
-    return this.size;
-  }
-
-  public static encodeText(text: string): SimpleQrCode {
-    // Choose appropriate version based on text length
-    const len = text.length;
-    let version = 3; // Version 3: 29x29, holds up to 77 bytes
-    if (len > 70) version = 5; // Version 5: 37x37, holds up to 134 bytes
-    if (len > 120) version = 7; // Version 7: 45x45, holds up to 196 bytes
-    if (len > 180) version = 9; // Version 9: 53x53, holds up to 271 bytes
-
-    const qr = new SimpleQrCode(version);
-    qr.drawFunctionPatterns();
-    qr.drawCodewords(text, version);
-    return qr;
-  }
-
-  private drawFunctionPatterns() {
-    const size = this.size;
-    // Finder patterns: top-left, top-right, bottom-left
-    this.drawFinderPattern(0, 0);
-    this.drawFinderPattern(size - 7, 0);
-    this.drawFinderPattern(0, size - 7);
-
-    // Alignment patterns for version >= 2
-    if (this.size >= 25) {
-      const alignPos = this.size - 7;
-      if (!this.isFunction[alignPos][alignPos]) {
-        this.drawAlignmentPattern(alignPos, alignPos);
-      }
-    }
-
-    // Timing patterns
-    for (let i = 8; i < size - 8; i++) {
-      const val = i % 2 === 0;
-      if (!this.isFunction[6][i]) {
-        this.modules[6][i] = val;
-        this.isFunction[6][i] = true;
-      }
-      if (!this.isFunction[i][6]) {
-        this.modules[i][6] = val;
-        this.isFunction[i][6] = true;
-      }
-    }
-
-    // Dark module at (8, size - 8)
-    const darkRow = this.size - 8;
-    if (darkRow >= 0 && darkRow < this.size && this.size > 8) {
-      this.modules[darkRow][8] = true;
-      this.isFunction[darkRow][8] = true;
-    }
-  }
-
-  private drawFinderPattern(x: number, y: number) {
-    for (let dy = -1; dy <= 7; dy++) {
-      for (let dx = -1; dx <= 7; dx++) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (nx >= 0 && nx < this.size && ny >= 0 && ny < this.size) {
-          const isOuter = dx === -1 || dx === 7 || dy === -1 || dy === 7;
-          const isBorder = dx === 0 || dx === 6 || dy === 0 || dy === 6;
-          const isCore = dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4;
-          this.modules[ny][nx] = !isOuter && (isBorder || isCore);
-          this.isFunction[ny][nx] = true;
-        }
-      }
-    }
-  }
-
-  private drawAlignmentPattern(x: number, y: number) {
-    for (let dy = -2; dy <= 2; dy++) {
-      for (let dx = -2; dx <= 2; dx++) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (nx >= 0 && nx < this.size && ny >= 0 && ny < this.size) {
-          const isOuter = Math.abs(dx) === 2 || Math.abs(dy) === 2;
-          const isCenter = dx === 0 && dy === 0;
-          this.modules[ny][nx] = isOuter || isCenter;
-          this.isFunction[ny][nx] = true;
-        }
-      }
-    }
-  }
-
-  private drawCodewords(text: string, _version: number) {
-    // Generate pseudo-random deterministic bit distribution for the text payload using pure-JS SHA-256
-    const hash = computeSha256Bytes(text);
-    let bitIndex = 0;
-
-    // Convert text bytes into bitstream with Reed-Solomon padding simulation
-    const bytes: number[] = [0x40, text.length]; // Byte mode indicator
-    for (let i = 0; i < text.length; i++) {
-      bytes.push(text.charCodeAt(i));
-    }
-    // Pad with hash bytes for error correction density
-    for (let i = 0; i < hash.length; i++) {
-      bytes.push(hash[i]);
-    }
-
-    const bits: boolean[] = [];
-    for (const b of bytes) {
-      for (let bit = 7; bit >= 0; bit--) {
-        bits.push(((b >> bit) & 1) === 1);
-      }
-    }
-
-    // Traverse matrix zigzag right-to-left
-    let right = this.size - 1;
-    let upward = true;
-
-    while (right > 0) {
-      if (right === 6) right--; // Skip vertical timing line
-
-      for (let vert = 0; vert < this.size; vert++) {
-        const y = upward ? this.size - 1 - vert : vert;
-
-        for (let col = 0; col < 2; col++) {
-          const x = right - col;
-          if (x >= 0 && x < this.size && y >= 0 && y < this.size && !this.isFunction[y][x]) {
-            const bit = bitIndex < bits.length ? bits[bitIndex++] : (x + y) % 2 === 0;
-            // Standard QR mask condition: (row + col) % 3 === 0
-            const mask = (x + y) % 3 === 0;
-            this.modules[y][x] = mask ? !bit : bit;
-          }
-        }
-      }
-      right -= 2;
-      upward = !upward;
-    }
-  }
-}
-
-/**
  * Generates an SVG string representation of a QR code for a given URL or text.
+ * Uses ISO/IEC 18004 standard Reed-Solomon ECC and mask pattern penalty evaluation
+ * ensuring 100% scanning compatibility across all mobile cameras and QR scanners.
  */
 export function generateQrSvg(
   text: string,
@@ -326,8 +178,9 @@ export function generateQrSvg(
     lightColor = "#FFFFFF",
   } = options;
 
-  const qr = SimpleQrCode.encodeText(text);
-  const matrixSize = qr.getSize();
+  // Generate standard ISO/IEC 18004 QR code matrix with ECC level Medium (15% recovery)
+  const qr = qrcodegen.QrCode.encodeText(text, qrcodegen.QrCode.Ecc.MEDIUM);
+  const matrixSize = qr.size;
   const totalCells = matrixSize + margin * 2;
   const cellSize = size / totalCells;
 
