@@ -97,22 +97,27 @@ export function TableManagementView({
   }, [initialTables, searchQuery, selectedZone]);
 
   const openQrModal = (table: FullTable, rawToken?: string) => {
-    const token = rawToken || table.active_token?.token_hash?.slice(0, 32) || "demo-qr-token";
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://lasador.in";
-    const customerUrl = `${origin}/t/${token}`;
-    const svg = generateQrSvg(customerUrl, {
-      size: 260,
-      margin: 3,
-      darkColor: "#1A1614",
-      lightColor: "#FFFFFF",
-    });
+    try {
+      const token = rawToken || table.active_token?.token_hash?.slice(0, 32) || "demo-qr-token";
+      const origin = typeof window !== "undefined" ? window.location.origin : "https://lasador.in";
+      const customerUrl = `${origin}/t/${token}`;
+      const svg = generateQrSvg(customerUrl, {
+        size: 260,
+        margin: 3,
+        darkColor: "#1A1614",
+        lightColor: "#FFFFFF",
+      });
 
-    setActiveQrModal({
-      table,
-      tokenString: token,
-      customerUrl,
-      svgContent: svg,
-    });
+      setActiveQrModal({
+        table,
+        tokenString: token,
+        customerUrl,
+        svgContent: svg,
+      });
+    } catch (err) {
+      console.error("Failed to generate QR modal:", err);
+      showToast("error", "Unable to open QR Code modal.");
+    }
   };
 
   const copyUrl = () => {
