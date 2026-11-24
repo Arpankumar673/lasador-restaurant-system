@@ -318,7 +318,7 @@ export function MenuManagementView({
               return (
                 <Card
                   key={product.id}
-                  className={`border-asador-border bg-asador-card overflow-hidden flex flex-col justify-between transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] ${
+                  className={`border-asador-border bg-asador-card overflow-hidden flex flex-col justify-between transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] ${
                     !product.is_available ? "opacity-60 border-dashed" : ""
                   }`}
                 >

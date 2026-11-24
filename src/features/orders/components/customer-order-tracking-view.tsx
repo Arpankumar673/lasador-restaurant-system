@@ -125,7 +125,7 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
                   <div
                     className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border text-xs transition-all ${
                       isPassed
-                        ? "bg-asador-ember border-asador-ember text-asador-parchment shadow-ember-glow"
+                        ? "bg-asador-ember border-asador-ember text-asador-ivory shadow-ember-glow"
                         : "bg-asador-deep border-asador-border text-asador-silver"
                     } ${isCurrent ? "ring-2 ring-asador-malt ring-offset-2 ring-offset-asador-dark" : ""}`}
                   >

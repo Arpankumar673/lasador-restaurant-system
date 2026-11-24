@@ -10,11 +10,11 @@ export function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-asador-border/70 bg-asador-deep/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E5DEC9] bg-[#FAF7F2]/90 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(30,25,22,0.06)]">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand logo & title */}
         <Link href="/" className="flex items-center space-x-3 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-asador-lg bg-gradient-to-br from-asador-ember to-asador-flame text-asador-parchment shadow-ember-glow transition-transform group-hover:scale-105">
+          <div className="flex h-11 w-11 items-center justify-center rounded-asador-lg bg-gradient-to-br from-asador-ember to-asador-flame text-asador-ivory shadow-ember-glow transition-transform group-hover:scale-105">
             <Flame className="h-6 w-6" />
           </div>
           <div className="flex flex-col">

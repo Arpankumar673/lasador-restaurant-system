@@ -35,7 +35,7 @@ export function AdminHeader({ staff }: AdminHeaderProps) {
   }, [pathname]);
 
   const roleVariantMap = {
-    owner: "default",
+    owner: "brass",
     admin: "copper",
     manager: "malt",
     kitchen: "hops",
@@ -51,7 +51,7 @@ export function AdminHeader({ staff }: AdminHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-asador-border/80 bg-asador-bg/85 px-3 sm:px-6 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#E5DEC9] bg-[#FAF7F2]/90 px-3 sm:px-6 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(30,25,22,0.06)]">
         {/* Left: Mobile hamburger trigger & Brand logo */}
         <div className="flex items-center space-x-2 sm:space-x-3">
           {staff && (
@@ -66,7 +66,7 @@ export function AdminHeader({ staff }: AdminHeaderProps) {
           )}
 
           <Link href="/admin" prefetch={false} className="flex items-center space-x-2 group">
-            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-asador bg-gradient-to-br from-asador-ember to-asador-flame text-asador-parchment shadow-ember-glow shrink-0">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-asador bg-gradient-to-br from-asador-ember to-asador-flame text-asador-ivory shadow-ember-glow shrink-0">
               <Flame className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <div className="flex flex-col min-w-0">

@@ -164,10 +164,10 @@ export default async function AdminOverviewPage() {
       {/* Quick Access Action Modules */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         {/* Module 1: Staff Management */}
-        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] flex flex-col justify-between">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] flex flex-col justify-between">
           <CardHeader className="p-4 pb-3">
             <div className="flex items-center justify-between">
-              <div className="p-2.5 rounded-asador bg-asador-ember/15 text-asador-ember border border-asador-ember/30">
+              <div className="p-2.5 rounded-asador bg-asador-ember/10 text-asador-ember border border-asador-ember/20">
                 <Users className="h-5 w-5" />
               </div>
               <Badge variant={canManageStaff ? "hops" : "outline"} className="text-[10px]">
@@ -196,10 +196,10 @@ export default async function AdminOverviewPage() {
         </Card>
 
         {/* Module 2: Restaurant Settings */}
-        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] flex flex-col justify-between">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] flex flex-col justify-between">
           <CardHeader className="p-4 pb-3">
             <div className="flex items-center justify-between">
-              <div className="p-2.5 rounded-asador bg-asador-copper/15 text-asador-copper border border-asador-copper/30">
+              <div className="p-2.5 rounded-asador bg-asador-copper/10 text-asador-copper border border-asador-copper/20">
                 <Store className="h-5 w-5" />
               </div>
               <Badge variant={canManageSettings ? "hops" : "outline"} className="text-[10px]">
@@ -228,7 +228,7 @@ export default async function AdminOverviewPage() {
         </Card>
 
         {/* Module 3: Audit Logging */}
-        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] flex flex-col justify-between">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] flex flex-col justify-between">
           <CardHeader className="p-4 pb-3">
             <div className="flex items-center justify-between">
               <div className="p-2.5 rounded-asador bg-asador-malt/15 text-asador-malt border border-asador-malt/30">

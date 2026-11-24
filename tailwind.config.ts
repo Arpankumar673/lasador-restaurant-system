@@ -13,47 +13,70 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         asador: {
-          // Deep Surface Hierarchy (Charred Oak & Smoked Walnut)
-          bg: "#0F0D0B", // Warm obsidian-espresso canvas
-          dark: "#0F0D0B", // Canvas alias
-          deep: "#0B0908", // Deep roasted cocoa well (inputs, wells, deep backgrounds)
-          surface: "#171411", // Smoked walnut elevated cards & sidebars
-          surfaceHover: "#211C18",
-          card: "#171411", // Smoked walnut cards
-          border: "#2E2721", // Warm top-edge / card border
-          borderMuted: "#221C17",
-          borderHighlight: "rgba(212, 163, 89, 0.14)", // Brass hairline highlight
+          // Backgrounds & Surface Hierarchy (Warm Alabaster, Crisp Warm Ivory & Soft Linen Sand)
+          bg: "#FAF7F2", // Warm Alabaster primary page canvas
+          dark: "#FAF7F2", // Canvas alias
+          alabaster: "#FAF7F2",
+          deep: "#F3EDE2", // Soft Linen Sand (recessed wells, inputs, filter strips)
+          sand: "#F3EDE2",
+          sandBorder: "#DDD3C0", // Subtle border for recessed wells
+          surface: "#FFFDF9", // Crisp Warm Ivory (elevated cards, sidebar, modals)
+          surfaceHover: "#F5EFE4", // Soft warm hover
+          card: "#FFFDF9", // Crisp Warm Ivory
+          border: "#E5DEC9", // Refined champagne-linen hairline border
+          borderMuted: "#EFE9DC",
+          borderHighlight: "rgba(176, 137, 67, 0.2)", // Brass hairline highlight
 
-          // Luxury Brand Accents (Burnished Copper & Champagne Gold)
-          ember: "#C86D3B", // Burnished Copper primary accent
-          flame: "#D98A4E", // Ember Gold hover / secondary accent
-          copper: "#D4A359", // Brushed Champagne Gold / Brass
-          malt: "#D4A359", // Warm golden malt / Champagne Gold
-          brass: "#D4A359", // Fine brass accent
+          // Brand Primary & Burgundy Palette
+          ember: "#5C1D24", // Deep Heritage Burgundy (Primary CTA & Active focus)
+          flame: "#70242D", // Heritage Burgundy hover
+          burgundy: "#5C1D24",
+          burgundyHover: "#70242D",
+          ivory: "#FAF7F2", // Crisp Ivory text on burgundy buttons/accents
 
-          // Typography Hierarchy (Classic Fine-Dining)
-          parchment: "#F4EFE6", // Warm ivory parchment (headings & high-contrast text)
-          silver: "#A89F91", // Warm sandstone secondary metadata
-          ash: "#736A5E", // Muted bronze micro-labels & subtle hints
-          charcoal: "#141110",
+          // Luxury Accents & Antique Brass
+          copper: "#B08943", // Antique Brass
+          malt: "#B08943", // Antique Brass
+          brass: "#B08943", // Antique Brass
+          brassDark: "#9A7432", // Brass badge text
+          brassBg: "#F5EFE4", // Brass badge fill
+          brassBorder: "#DFD1B5", // Brass badge border
 
-          // Psychological Status Semantics (Muted Jewel Tones for low eye fatigue)
-          // Available / Ready: Deep Sage Emerald
-          emerald: "#1E3A2F",
-          emeraldText: "#6EE7B7",
-          emeraldBorder: "#2D5A47",
-          hops: "#1E3A2F",
-          hopsLight: "#6EE7B7",
+          // Typography Hierarchy (Classic Editorial Fine-Dining)
+          parchment: "#1E1916", // Deep Espresso Charcoal (primary headings, titles & text)
+          charcoal: "#1E1916", // Deep Espresso Charcoal
+          espresso: "#1E1916",
+          silver: "#5E554C", // Warm Slate Taupe (body & metadata descriptions)
+          taupe: "#5E554C",
+          ash: "#8C8175", // Muted Stone (micro-labels, badges & timestamps)
+          stone: "#8C8175",
 
-          // Occupied / Preparing: Warm Amber Ochre
-          ochre: "#3D2B14",
-          ochreText: "#FBBF24",
-          ochreBorder: "#66471E",
+          // High-Legibility Status Semantics (Soft Botanical Jewel Tones)
+          // Available / Ready / Completed: Soft Botanical Sage
+          emerald: "#E7F2EC",
+          emeraldText: "#235C3B",
+          emeraldBorder: "#C2DEC9",
+          sage: "#E7F2EC",
+          sageText: "#235C3B",
+          sageBorder: "#C2DEC9",
+          hops: "#E7F2EC",
+          hopsLight: "#235C3B",
 
-          // Billing / Urgent / Cancelled: Terracotta Crimson
-          crimson: "#3F1D1D",
-          crimsonText: "#FCA5A5",
-          crimsonBorder: "#6E2C2C",
+          // Occupied / Preparing / Pending: Warm Honey Amber
+          ochre: "#FBF1E1",
+          ochreText: "#8F510D",
+          ochreBorder: "#EED4AC",
+          amber: "#FBF1E1",
+          amberText: "#8F510D",
+          amberBorder: "#EED4AC",
+
+          // Billing / Urgent / Cancelled: Muted Rose Burgundy
+          crimson: "#F9E8E7",
+          crimsonText: "#7D1E26",
+          crimsonBorder: "#E5B7B4",
+          rose: "#F9E8E7",
+          roseText: "#7D1E26",
+          roseBorder: "#E5B7B4",
         },
       },
       fontFamily: {
@@ -61,14 +84,14 @@ const config: Config = {
         sans: ["var(--font-sans)", "Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        "ember-glow": "0 0 25px -5px rgba(200, 109, 59, 0.3)",
-        "ember-glow-lg": "0 0 40px -5px rgba(200, 109, 59, 0.45)",
-        "copper-glow": "0 0 25px -5px rgba(212, 163, 89, 0.3)",
-        "malt-glow": "0 0 25px -5px rgba(212, 163, 89, 0.25)",
-        "luxury-glow": "0 12px 30px -10px rgba(0, 0, 0, 0.6)",
-        "card-elevation": "0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(244, 239, 230, 0.06)",
-        "card-highlight": "inset 0 1px 0 0 rgba(244, 239, 230, 0.06)",
-        "well-inner": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.4)",
+        "ember-glow": "0 4px 14px -2px rgba(92, 29, 36, 0.25)",
+        "ember-glow-lg": "0 8px 24px -4px rgba(92, 29, 36, 0.35)",
+        "copper-glow": "0 4px 14px -2px rgba(176, 137, 67, 0.25)",
+        "malt-glow": "0 4px 14px -2px rgba(176, 137, 67, 0.2)",
+        "luxury-glow": "0 12px 28px -12px rgba(92, 29, 36, 0.12)",
+        "card-elevation": "0 6px 20px -10px rgba(30, 25, 22, 0.08), inset 0 1px 0 0 rgba(255, 253, 249, 0.8)",
+        "card-highlight": "inset 0 1px 0 0 rgba(255, 253, 249, 0.8)",
+        "well-inner": "inset 0 1px 3px 0 rgba(30, 25, 22, 0.06)",
       },
       transitionTimingFunction: {
         "luxury-decel": "cubic-bezier(0.22, 1, 0.36, 1)",
@@ -80,10 +103,10 @@ const config: Config = {
       keyframes: {
         "pulse-calm": {
           "0%, 100%": { opacity: "1", transform: "scale(1)" },
-          "50%": { opacity: "0.55", transform: "scale(0.96)" },
+          "50%": { opacity: "0.5", transform: "scale(0.96)" },
         },
         fadeSlideUp: {
-          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "0%": { opacity: "0", transform: "translateY(6px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },

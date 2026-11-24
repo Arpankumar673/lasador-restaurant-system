@@ -10,7 +10,7 @@ export function PublicFooter() {
           {/* Brand info */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-asador bg-gradient-to-br from-asador-ember to-asador-flame text-asador-parchment shadow-ember-glow">
+              <div className="flex h-10 w-10 items-center justify-center rounded-asador bg-gradient-to-br from-asador-ember to-asador-flame text-asador-ivory shadow-ember-glow">
                 <Flame className="h-5 w-5" />
               </div>
               <span className="font-serif text-xl font-bold tracking-wider text-asador-parchment">

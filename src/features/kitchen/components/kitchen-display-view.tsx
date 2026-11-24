@@ -136,7 +136,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
       {/* Top Console Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 rounded-asador bg-asador-ember text-asador-parchment shadow-ember-glow">
+          <div className="p-2.5 rounded-asador bg-asador-ember text-asador-ivory shadow-ember-glow">
             <Flame className="h-6 w-6" />
           </div>
           <div>
@@ -218,11 +218,11 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
             return (
               <div
                 key={order.id}
-                className={`rounded-asador-lg border bg-asador-card shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] ${
+                className={`rounded-asador-lg border bg-asador-card shadow-card-elevation flex flex-col justify-between overflow-hidden transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] ${
                   isUrgent
-                    ? "border-asador-flame ring-1 ring-asador-flame"
+                    ? "border-asador-crimsonBorder ring-1 ring-asador-crimsonBorder"
                     : isWarning
-                    ? "border-asador-malt/60"
+                    ? "border-asador-ochreBorder"
                     : "border-asador-border"
                 }`}
               >
@@ -230,9 +230,9 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                 <div
                   className={`p-3.5 border-b flex items-center justify-between ${
                     isUrgent
-                      ? "bg-asador-flame/20 border-asador-flame/40 text-asador-flame"
+                      ? "bg-asador-crimson border-asador-crimsonBorder text-asador-crimsonText"
                       : isWarning
-                      ? "bg-asador-malt/15 border-asador-malt/30 text-asador-malt"
+                      ? "bg-asador-ochre border-asador-ochreBorder text-asador-ochreText"
                       : "bg-asador-deep border-asador-border text-asador-parchment"
                   }`}
                 >
@@ -326,7 +326,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="min-h-11 h-11 text-xs font-bold w-full bg-asador-deep hover:bg-asador-ember hover:border-asador-ember"
+                                className="min-h-11 h-11 text-xs font-bold w-full bg-asador-deep text-asador-parchment hover:bg-asador-ember hover:text-asador-ivory hover:border-asador-ember"
                                 onClick={() => handleStatusAdvance(item.id, "pending")}
                               >
                                 Start Cooking
@@ -348,7 +348,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <Button
                                 size="sm"
                                 variant="secondary"
-                                className="min-h-11 h-11 text-xs font-bold w-full border-asador-emeraldBorder text-asador-emeraldText bg-asador-emerald/20 hover:bg-asador-emerald/30"
+                                className="min-h-11 h-11 text-xs font-bold w-full border-asador-emeraldBorder text-asador-emeraldText bg-asador-emerald hover:bg-asador-emerald/80"
                                 onClick={() => handleStatusAdvance(item.id, "ready")}
                               >
                                 <Check className="h-4 w-4 mr-1.5" /> Handed to Server

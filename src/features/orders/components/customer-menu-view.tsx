@@ -304,7 +304,7 @@ export function CustomerMenuView({
             onClick={() => setActiveCategorySlug("all")}
             className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-colors min-h-9 flex items-center ${
               activeCategorySlug === "all"
-                ? "bg-asador-ember text-asador-parchment shadow-sm"
+                ? "bg-asador-ember text-asador-ivory shadow-sm"
                 : "bg-asador-deep text-asador-silver hover:text-asador-parchment"
             }`}
           >
@@ -317,7 +317,7 @@ export function CustomerMenuView({
               onClick={() => setActiveCategorySlug(cat.slug)}
               className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-colors min-h-9 flex items-center ${
                 activeCategorySlug === cat.slug
-                  ? "bg-asador-ember text-asador-parchment shadow-sm"
+                  ? "bg-asador-ember text-asador-ivory shadow-sm"
                   : "bg-asador-deep text-asador-silver hover:text-asador-parchment"
               }`}
             >
@@ -350,7 +350,7 @@ export function CustomerMenuView({
                   onClick={() => product.is_available && openCustomizer(product)}
                   className={`rounded-asador border border-asador-border bg-asador-card p-3 sm:p-4 flex flex-col justify-between gap-3 transition-all duration-300 ease-luxury-decel ${
                     product.is_available
-                      ? "cursor-pointer hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] active:scale-[0.985]"
+                      ? "cursor-pointer hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] active:scale-[0.985]"
                       : "opacity-50 cursor-not-allowed"
                   }`}
                 >
@@ -411,7 +411,7 @@ export function CustomerMenuView({
                           e.stopPropagation();
                           openCustomizer(product);
                         }}
-                        className="min-h-11 min-w-[76px] px-3.5 py-2 rounded-full bg-asador-surface hover:bg-asador-ember text-asador-parchment border border-asador-border text-xs font-bold tracking-wide transition-all shadow-sm active:scale-95 flex items-center justify-center"
+                        className="min-h-11 min-w-[76px] px-3.5 py-2 rounded-full bg-asador-surface hover:bg-asador-ember hover:text-asador-ivory text-asador-parchment border border-asador-border text-xs font-bold tracking-wide transition-all shadow-sm active:scale-95 flex items-center justify-center"
                       >
                         + ADD
                       </button>
@@ -434,7 +434,7 @@ export function CustomerMenuView({
           <div className="max-w-5xl mx-auto">
             <button
               onClick={() => setIsCartOpen(true)}
-              className="w-full min-h-12 rounded-asador bg-asador-ember hover:bg-asador-flame text-asador-parchment p-3.5 flex items-center justify-between shadow-ember-glow transition-all active:scale-[0.99]"
+              className="w-full min-h-12 rounded-asador bg-asador-ember hover:bg-asador-flame text-asador-ivory p-3.5 flex items-center justify-between shadow-ember-glow transition-all active:scale-[0.99]"
             >
               <div className="flex items-center space-x-2.5">
                 <div className="p-1.5 rounded-full bg-black/20">

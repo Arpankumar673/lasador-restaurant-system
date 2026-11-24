@@ -158,8 +158,8 @@ export function StaffManagementView({
               onClick={() => setRoleFilter(r)}
               className={`min-h-8 px-3 py-1.5 rounded-asador text-xs font-semibold uppercase tracking-wider shrink-0 whitespace-nowrap transition-colors ${
                 roleFilter === r
-                  ? "bg-asador-ember text-asador-parchment"
-                  : "bg-asador-surface text-asador-silver hover:bg-asador-surfaceHover"
+                  ? "bg-asador-ember text-asador-ivory shadow-sm"
+                  : "bg-asador-surface text-asador-silver hover:bg-asador-surfaceHover hover:text-asador-parchment border border-asador-border"
               }`}
             >
               {r}

@@ -11,7 +11,8 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
     | "secondary"
     | "emerald"
     | "ochre"
-    | "crimson";
+    | "crimson"
+    | "brass";
 }
 
 export function Badge({
@@ -20,20 +21,22 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const variantStyles = {
-    // Luxury Brand Burnished Copper Accent
-    default: "bg-asador-ember/15 text-asador-ember border-asador-ember/40",
-    // Occupied / Preparing / Active Warm Amber Ochre
+    // Heritage Burgundy Accent
+    default: "bg-asador-ember/10 text-asador-ember border-asador-ember/30",
+    // Occupied / Preparing / Active Warm Honey Amber
     malt: "bg-asador-ochre text-asador-ochreText border-asador-ochreBorder",
     copper: "bg-asador-ochre text-asador-ochreText border-asador-ochreBorder",
     ochre: "bg-asador-ochre text-asador-ochreText border-asador-ochreBorder",
-    // Available / Ready Deep Sage Emerald
+    // Available / Ready Soft Botanical Sage
     hops: "bg-asador-emerald text-asador-emeraldText border-asador-emeraldBorder",
     emerald: "bg-asador-emerald text-asador-emeraldText border-asador-emeraldBorder",
-    // Billing / Urgent / Destructive Terracotta Crimson
+    // Billing / Urgent / Destructive Muted Rose Burgundy
     crimson: "bg-asador-crimson text-asador-crimsonText border-asador-crimsonBorder",
+    // Antique Brass Luxury Role Badge
+    brass: "bg-[#F5EFE4] text-[#9A7432] border-[#DFD1B5]",
     // Neutral & Subdued
-    outline: "border-asador-border text-asador-silver bg-asador-deep/40",
-    secondary: "bg-asador-surface text-asador-parchment border-asador-borderMuted",
+    outline: "border-asador-sandBorder text-asador-silver bg-asador-deep/60",
+    secondary: "bg-asador-deep text-asador-parchment border-asador-border",
   };
 
   return (

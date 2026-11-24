@@ -110,7 +110,7 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
   });
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-asador-border bg-asador-surface/60 backdrop-blur-sm shrink-0">
+    <aside className="hidden lg:flex w-64 flex-col border-r border-asador-border bg-asador-surface shrink-0">
       <div className="flex flex-col flex-1 p-4 space-y-6">
         <div className="space-y-1">
           <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-asador-ash">
@@ -129,8 +129,8 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
                   className={cn(
                     "group flex items-center justify-between rounded-asador px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-luxury-decel",
                     isActive
-                      ? "bg-asador-surface text-asador-ember border-l-2 border-asador-ember font-semibold shadow-[inset_0_1px_0_0_rgba(244,239,230,0.06)]"
-                      : "text-asador-silver hover:bg-asador-surface/50 hover:text-asador-parchment"
+                      ? "bg-asador-ember text-asador-ivory font-semibold shadow-sm"
+                      : "text-asador-silver hover:bg-asador-surfaceHover hover:text-asador-parchment"
                   )}
                 >
                   <div className="flex items-center space-x-3">
@@ -138,14 +138,14 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
                       className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
                         isActive
-                          ? "text-asador-ember"
+                          ? "text-asador-ivory"
                           : "text-asador-silver group-hover:text-asador-parchment"
                       )}
                     />
                     <span>{item.title}</span>
                   </div>
                   {item.phase && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-asador-borderMuted text-asador-ash">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-asador-deep text-asador-ash">
                       {item.phase}
                     </span>
                   )}
@@ -157,7 +157,7 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
 
         {/* Independence & Architecture Callout */}
         <div className="mt-auto space-y-3">
-          <div className="rounded-asador-lg border border-asador-border/60 bg-asador-card/80 p-3.5 space-y-2">
+          <div className="rounded-asador-lg border border-asador-sandBorder bg-asador-deep p-3.5 space-y-2">
             <div className="flex items-center space-x-2 text-xs font-semibold text-asador-parchment">
               <span className="h-2 w-2 rounded-full bg-asador-ember" />
               <span>Dedicated System</span>

@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Monogram */}
         <div className="text-center space-y-2">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-asador-lg bg-gradient-to-br from-asador-ember to-asador-flame text-asador-parchment shadow-ember-glow">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-asador-lg bg-gradient-to-br from-asador-ember to-asador-flame text-asador-ivory shadow-ember-glow">
             <Flame className="h-8 w-8" />
           </div>
           <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">

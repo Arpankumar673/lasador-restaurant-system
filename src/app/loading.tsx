@@ -6,7 +6,7 @@ export default function Loading() {
       <div className="relative flex h-16 w-16 items-center justify-center">
         <div className="absolute inset-0 rounded-full bg-asador-ember/20 animate-ping" />
         <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-asador-ember to-asador-flame shadow-ember-glow">
-          <Flame className="h-7 w-7 text-asador-parchment animate-pulse" />
+          <Flame className="h-7 w-7 text-asador-ivory animate-pulse" />
         </div>
       </div>
       <div className="text-center space-y-1">

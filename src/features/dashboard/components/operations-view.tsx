@@ -191,7 +191,7 @@ export function OperationsView({
 
       {/* Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Card className="border-asador-border bg-asador-card">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)]">
           <CardHeader className="p-3 sm:p-4 pb-1">
             <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Needs Confirmation
@@ -205,7 +205,7 @@ export function OperationsView({
           </CardContent>
         </Card>
 
-        <Card className="border-asador-border bg-asador-card">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)]">
           <CardHeader className="p-3 sm:p-4 pb-1">
             <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               At Fire & Taps
@@ -219,7 +219,7 @@ export function OperationsView({
           </CardContent>
         </Card>
 
-        <Card className="border-asador-border bg-asador-card">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)]">
           <CardHeader className="p-3 sm:p-4 pb-1">
             <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Plated & Ready
@@ -233,7 +233,7 @@ export function OperationsView({
           </CardContent>
         </Card>
 
-        <Card className="border-asador-border bg-asador-card">
+        <Card className="border-asador-border bg-asador-card transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)]">
           <CardHeader className="p-3 sm:p-4 pb-1">
             <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Active Floor Tables

@@ -104,7 +104,7 @@ export function TableManagementView({
       const svg = generateQrSvg(customerUrl, {
         size: 260,
         margin: 3,
-        darkColor: "#0F0D0B",
+        darkColor: "#1E1916",
         lightColor: "#FFFFFF",
       });
 
@@ -313,7 +313,7 @@ export function TableManagementView({
           return (
             <Card
               key={table.id}
-              className={`border-asador-border bg-asador-card overflow-hidden flex flex-col justify-between transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] ${
+              className={`border-asador-border bg-asador-card overflow-hidden flex flex-col justify-between transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/50 hover:shadow-[0_12px_28px_-12px_rgba(92,29,36,0.12)] ${
                 !table.is_active ? "opacity-60 border-dashed" : ""
               }`}
             >
@@ -349,7 +349,7 @@ export function TableManagementView({
                   </div>
 
                   {/* QR Token Status */}
-                  <div className="rounded-asador border border-asador-border bg-asador-deep p-2 sm:p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
+                  <div className="rounded-asador border border-asador-sandBorder bg-asador-deep p-2 sm:p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
                     <div className="flex items-center space-x-1.5 min-w-0">
                       <QrCode className="h-3.5 w-3.5 text-asador-ember shrink-0" />
                       <div className="min-w-0">
