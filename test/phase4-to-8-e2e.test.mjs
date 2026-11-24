@@ -121,6 +121,25 @@ assert("regenerateQrToken revokes old active tokens with revoked_at timestamp", 
 assert("resolveTableByQrToken has zero time-based expiration check", !tableActions.includes("expires_at <") && !tableActions.includes("gt('expires_at'"));
 assert("resolveTableByQrToken accurately attributes revoked/unrecognized error without false expiry", tableActions.includes("This table QR code has been revoked or is unrecognized"));
 
+// Feature 1: Safe Dining Table Deletion Verification
+assert("table actions export deleteDiningTable", tableActions.includes("export async function deleteDiningTable"));
+assert("deleteDiningTable safeguards active sessions", tableActions.includes("active dining or billing session"));
+assert("deleteDiningTable safeguards active orders", tableActions.includes("active orders in progress"));
+assert("deleteDiningTable protects historical bills with soft-delete archival", tableActions.includes("archived and removed from floor layout"));
+
+const safeDeleteMigration = fs.readFileSync("supabase/migrations/20261124000002_safe_dining_table_deletion.sql", "utf-8");
+assert("Migration adds deleted_at to dining_tables", safeDeleteMigration.includes("ALTER TABLE dining_tables ADD COLUMN IF NOT EXISTS deleted_at"));
+assert("Migration enables Realtime for orders and service_requests", safeDeleteMigration.includes("ALTER PUBLICATION supabase_realtime ADD TABLE orders"));
+
+// Feature 2: Real-time Audio & Alarm System Verification
+const synthCode = fs.readFileSync("src/features/alerts/audio-synth.ts", "utf-8");
+assert("audio-synth uses native Web Audio API (AudioContext)", synthCode.includes("AudioContext"));
+assert("audio-synth has zero npm audio library imports", !synthCode.includes("from 'howler'") && !synthCode.includes("from 'tone'"));
+
+const alertContextCode = fs.readFileSync("src/features/alerts/alert-context.tsx", "utf-8");
+assert("alert-context subscribes to Realtime orders INSERT", alertContextCode.includes('table: "orders"'));
+assert("alert-context supports repeating alarm interval", alertContextCode.includes("setInterval"));
+
 // --------------------------------------------------------------------------------
 // 4. Server-Side Pricing, Tax Calculation & Snapshots
 // --------------------------------------------------------------------------------

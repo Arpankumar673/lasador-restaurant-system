@@ -12,6 +12,7 @@ import {
   toggleTableStatus,
   regenerateQrToken,
   revokeQrToken,
+  deleteDiningTable,
 } from "../actions";
 import { generateQrSvg } from "@/lib/utils/qr";
 import {
@@ -21,6 +22,7 @@ import {
   RefreshCw,
   Plus,
   Edit,
+  Trash2,
   ShieldAlert,
   CheckCircle2,
   AlertCircle,
@@ -50,8 +52,13 @@ export function TableManagementView({
   initialTables,
   canManage,
 }: TableManagementViewProps) {
+  const [tables, setTables] = React.useState<FullTable[]>(initialTables);
   const [selectedZone, setSelectedZone] = React.useState<string>("all");
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  React.useEffect(() => {
+    setTables(initialTables);
+  }, [initialTables]);
 
   // Notifications
   const [message, setMessage] = React.useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -63,6 +70,8 @@ export function TableManagementView({
   // Modals
   const [isTableModalOpen, setIsTableModalOpen] = React.useState(false);
   const [editingTable, setEditingTable] = React.useState<FullTable | null>(null);
+  const [tableToDelete, setTableToDelete] = React.useState<FullTable | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   // QR Modal
   const [activeQrModal, setActiveQrModal] = React.useState<{
@@ -77,13 +86,13 @@ export function TableManagementView({
   // Extract unique zones
   const zones = React.useMemo(() => {
     const set = new Set<string>();
-    initialTables.forEach((t) => set.add(t.zone));
+    tables.forEach((t) => set.add(t.zone));
     return Array.from(set);
-  }, [initialTables]);
+  }, [tables]);
 
   // Filtered tables
   const filteredTables = React.useMemo(() => {
-    return initialTables.filter((table) => {
+    return tables.filter((table) => {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -94,7 +103,7 @@ export function TableManagementView({
       const matchesZone = selectedZone === "all" || table.zone === selectedZone;
       return matchesSearch && matchesZone;
     });
-  }, [initialTables, searchQuery, selectedZone]);
+  }, [tables, searchQuery, selectedZone]);
 
   const openQrModal = (table: FullTable, rawToken?: string) => {
     try {
@@ -419,6 +428,16 @@ export function TableManagementView({
                     >
                       <RefreshCw className="h-3 w-3 mr-1" /> New QR
                     </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-1.5 sm:px-2 text-[10px] sm:text-[11px] text-asador-crimsonText hover:text-asador-crimson hover:bg-asador-crimson/10"
+                      title="Delete dining table"
+                      onClick={() => setTableToDelete(table)}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" /> Delete
+                    </Button>
                   </div>
 
                   <button
@@ -480,6 +499,7 @@ export function TableManagementView({
                       zone: String(formData.get("zone")),
                       capacity: Number(formData.get("capacity")),
                       is_active: true,
+                      deleted_at: null,
                       created_at: new Date().toISOString(),
                       updated_at: new Date().toISOString(),
                     };
@@ -548,19 +568,38 @@ export function TableManagementView({
                 </label>
               </div>
 
-              <div className="border-t border-asador-border pt-4 flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="min-h-11 h-11 px-4 text-xs"
-                  onClick={() => setIsTableModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs">
-                  {editingTable ? "Save Changes" : "Create Table"}
-                </Button>
+              <div className="border-t border-asador-border pt-4 flex items-center justify-between">
+                <div>
+                  {editingTable && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-11 h-11 px-3 text-xs text-asador-crimsonText hover:text-asador-crimson hover:bg-asador-crimson/10"
+                      onClick={() => {
+                        const target = editingTable;
+                        setIsTableModalOpen(false);
+                        setTableToDelete(target);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete Table
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="min-h-11 h-11 px-4 text-xs"
+                    onClick={() => setIsTableModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs">
+                    {editingTable ? "Save Changes" : "Create Table"}
+                  </Button>
+                </div>
               </div>
             </form>
           </div>
@@ -653,6 +692,71 @@ export function TableManagementView({
                   <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Open Customer View
                 </a>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* =====================================================================
+          MODAL: DELETE TABLE CONFIRMATION
+          ===================================================================== */}
+      {tableToDelete && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-asador-card border border-asador-border rounded-t-2xl sm:rounded-asador-lg max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-asador-crimson/15 border border-asador-crimson/30 flex items-center justify-center shrink-0">
+                <Trash2 className="h-5 w-5 text-asador-crimsonText" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-asador-parchment">
+                  Delete Table {tableToDelete.table_number}?
+                </h3>
+                <p className="text-xs text-asador-silver">
+                  {tableToDelete.zone} &bull; Capacity {tableToDelete.capacity} guests
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-asador bg-asador-deep border border-asador-border text-xs text-asador-ash space-y-2">
+              <p className="leading-relaxed">
+                <strong className="text-asador-parchment font-semibold">Floor Layout & QR Revocation:</strong> Deleting this table will permanently revoke its active QR code and remove it from staff operations.
+              </p>
+              <p className="text-[11px] text-asador-copper leading-relaxed">
+                <strong className="text-asador-parchment font-semibold">Integrity Safeguard:</strong> If this table has closed past orders or settled bills, historical data will remain completely intact in analytics and audit logs.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end space-x-2 pt-2 pb-safe">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-11 h-11 px-4 text-xs"
+                disabled={isDeleting}
+                onClick={() => setTableToDelete(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                disabled={isDeleting}
+                className="min-h-11 h-11 px-5 bg-asador-burgundy hover:bg-asador-burgundyHover text-asador-ivory border border-asador-burgundy text-xs font-semibold shadow-sm"
+                onClick={async () => {
+                  setIsDeleting(true);
+                  const res = await deleteDiningTable(tableToDelete.id);
+                  setIsDeleting(false);
+                  if (res.success) {
+                    setTables((prev) => prev.filter((t) => t.id !== tableToDelete.id));
+                    setTableToDelete(null);
+                    showToast("success", res.message || "Table deleted.");
+                  } else {
+                    showToast("error", res.error || "Failed to delete table.");
+                  }
+                }}
+              >
+                {isDeleting ? "Deleting..." : "Confirm Delete"}
+              </Button>
             </div>
           </div>
         </div>

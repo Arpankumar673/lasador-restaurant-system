@@ -11,7 +11,7 @@ export default async function AdminTablesPage() {
 
   // Fetch dining tables, active QR tokens, and active sessions
   const [tablesRes, tokensRes, sessionsRes] = await Promise.all([
-    supabase.from("dining_tables").select("*").order("table_number", { ascending: true }),
+    supabase.from("dining_tables").select("*").is("deleted_at", null).order("table_number", { ascending: true }),
     supabase.from("table_qr_tokens").select("*").eq("is_active", true),
     supabase.from("table_sessions").select("*").eq("status", "active"),
   ]);

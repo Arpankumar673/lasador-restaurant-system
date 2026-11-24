@@ -400,12 +400,14 @@ CREATE TABLE IF NOT EXISTS dining_tables (
   zone TEXT NOT NULL DEFAULT 'Main Dining',
   capacity INTEGER NOT NULL DEFAULT 4 CHECK (capacity > 0),
   is_active BOOLEAN NOT NULL DEFAULT true,
+  deleted_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_dining_tables_number ON dining_tables(table_number);
 CREATE INDEX IF NOT EXISTS idx_dining_tables_active ON dining_tables(is_active);
+CREATE INDEX IF NOT EXISTS idx_dining_tables_deleted_at ON dining_tables(deleted_at) WHERE deleted_at IS NULL;
 
 DROP TRIGGER IF EXISTS trigger_dining_tables_updated_at ON dining_tables;
 CREATE TRIGGER trigger_dining_tables_updated_at

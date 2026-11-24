@@ -272,6 +272,153 @@ export async function revokeQrToken(tableId: string): Promise<TableActionResult>
 }
 
 /**
+ * Safely deletes or archives a dining table with strict session safeguards and historical financial integrity.
+ * - Blocks deletion if the table currently has an active session ('active', 'billing') or pending/in-progress orders.
+ * - If historical orders, closed sessions, or bills exist: soft-deletes/archives the table (is_active = false, deleted_at = now())
+ *   and revokes active QR codes, preserving historical relational integrity.
+ * - If no historical records exist: cascade-deletes table_qr_tokens and physically deletes the table row.
+ */
+export async function deleteDiningTable(tableId: string): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized. You do not have permission to delete dining tables." };
+  }
+
+  if (!tableId || typeof tableId !== "string") {
+    return { success: false, error: "Valid Table ID is required." };
+  }
+
+  const supabase = createAdminClient();
+
+  // 1. Fetch table details
+  const { data: table, error: tableError } = await supabase
+    .from("dining_tables")
+    .select("id, table_number, is_active, deleted_at")
+    .eq("id", tableId)
+    .maybeSingle();
+
+  if (tableError || !table) {
+    return { success: false, error: "Dining table not found." };
+  }
+
+  // 2. Safeguard: Check for active dining/billing sessions
+  const { data: activeSessions } = await supabase
+    .from("table_sessions")
+    .select("id, status")
+    .eq("table_id", tableId)
+    .in("status", ["active", "billing"]);
+
+  if (activeSessions && activeSessions.length > 0) {
+    return {
+      success: false,
+      error: `Cannot delete Table '${table.table_number}'. It currently has an active dining or billing session. Please settle and close the session first.`,
+    };
+  }
+
+  // 3. Safeguard: Check for active/pending orders
+  const { data: activeOrders } = await supabase
+    .from("orders")
+    .select("id, status")
+    .eq("table_id", tableId)
+    .in("status", ["new", "accepted", "preparing", "ready"]);
+
+  if (activeOrders && activeOrders.length > 0) {
+    return {
+      success: false,
+      error: `Cannot delete Table '${table.table_number}'. It has active orders in progress. Please complete or cancel orders before deleting.`,
+    };
+  }
+
+  // 4. Historical integrity check (bills, past orders, closed sessions)
+  const [billsCheck, ordersCheck, sessionsCheck] = await Promise.all([
+    supabase.from("bills").select("id", { count: "exact", head: true }).eq("table_id", tableId),
+    supabase.from("orders").select("id", { count: "exact", head: true }).eq("table_id", tableId),
+    supabase.from("table_sessions").select("id", { count: "exact", head: true }).eq("table_id", tableId),
+  ]);
+
+  const hasHistory =
+    (billsCheck.count && billsCheck.count > 0) ||
+    (ordersCheck.count && ordersCheck.count > 0) ||
+    (sessionsCheck.count && sessionsCheck.count > 0);
+
+  const nowIso = new Date().toISOString();
+
+  // Always revoke active QR tokens
+  await supabase
+    .from("table_qr_tokens")
+    .update({
+      is_active: false,
+      revoked_at: nowIso,
+    })
+    .eq("table_id", tableId)
+    .eq("is_active", true);
+
+  if (hasHistory) {
+    // Soft delete / archive to protect relational foreign key integrity
+    const { error: archiveError } = await supabase
+      .from("dining_tables")
+      .update({
+        is_active: false,
+        deleted_at: nowIso,
+      })
+      .eq("id", tableId);
+
+    if (archiveError) {
+      return { success: false, error: archiveError.message };
+    }
+
+    await logAuditEvent({
+      actorId: caller.userId,
+      action: "table:delete",
+      entity: "dining_tables",
+      entityId: tableId,
+      details: {
+        table_number: table.table_number,
+        archived: true,
+        reason: "Archived to preserve historical billing and order integrity",
+      },
+    });
+
+    revalidatePath("/admin/tables");
+    revalidatePath("/admin/operations");
+    return {
+      success: true,
+      message: `Table '${table.table_number}' archived and removed from floor layout. Historical orders and bills preserved.`,
+    };
+  } else {
+    // No history exists (e.g. freshly created or unused table) -> hard delete
+    await supabase.from("table_qr_tokens").delete().eq("table_id", tableId);
+
+    const { error: deleteError } = await supabase
+      .from("dining_tables")
+      .delete()
+      .eq("id", tableId);
+
+    if (deleteError) {
+      return { success: false, error: deleteError.message };
+    }
+
+    await logAuditEvent({
+      actorId: caller.userId,
+      action: "table:delete",
+      entity: "dining_tables",
+      entityId: tableId,
+      details: {
+        table_number: table.table_number,
+        hard_deleted: true,
+      },
+    });
+
+    revalidatePath("/admin/tables");
+    revalidatePath("/admin/operations");
+    return {
+      success: true,
+      message: `Table '${table.table_number}' and its QR code permanently deleted.`,
+    };
+  }
+}
+
+/**
  * Resolves a raw QR token from customer scanning into an active Dining Table and Table Session.
  * Table QR tokens are permanent until explicitly rotated or revoked by staff.
  * Validates token hash, checks table availability, and retrieves or creates an active session.
@@ -408,8 +555,8 @@ export async function resolveTableByQrToken(rawToken: string) {
     ? tokenRecord.dining_table[0]
     : tokenRecord.dining_table;
 
-  if (!table.is_active) {
-    return { valid: false, error: `Table '${table.table_number}' is currently inactive.` };
+  if (!table.is_active || (table as any).deleted_at) {
+    return { valid: false, error: `Table '${table.table_number}' is currently inactive or archived.` };
   }
 
   // Retrieve or open an active table session

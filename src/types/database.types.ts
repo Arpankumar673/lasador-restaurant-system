@@ -514,6 +514,7 @@ export interface Database {
           zone: string;
           capacity: number;
           is_active: boolean;
+          deleted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -524,6 +525,7 @@ export interface Database {
           zone?: string;
           capacity?: number;
           is_active?: boolean;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -534,6 +536,7 @@ export interface Database {
           zone?: string;
           capacity?: number;
           is_active?: boolean;
+          deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -869,6 +872,36 @@ export interface Database {
           details?: Json | null;
           ip_address?: string | null;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      service_requests: {
+        Row: {
+          id: string;
+          table_id: string;
+          request_type: string;
+          notes: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          table_id: string;
+          request_type?: string;
+          notes?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          table_id?: string;
+          request_type?: string;
+          notes?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

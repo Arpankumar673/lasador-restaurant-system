@@ -9,6 +9,7 @@ import { signOutStaff } from "@/features/auth/actions";
 import { StaffProfile } from "@/features/auth/server";
 import { navItems } from "./admin-sidebar";
 import { cn } from "@/lib/utils";
+import { AudioAlarmWidget } from "@/features/alerts/audio-alarm-widget";
 import {
   Flame,
   LogOut,
@@ -80,8 +81,10 @@ export function AdminHeader({ staff }: AdminHeaderProps) {
           </Link>
         </div>
 
-        {/* Right: User profile badge, sign out & public link */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        {/* Right: Audio Alarm Controls, User profile badge, sign out & public link */}
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <AudioAlarmWidget />
+
           {staff ? (
             <>
               <div className="flex items-center space-x-2 sm:space-x-3 border-r border-asador-borderMuted pr-2 sm:pr-4">

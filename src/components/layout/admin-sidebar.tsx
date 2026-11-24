@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { StaffRole } from "@/types/database.types";
 import { signOutStaff } from "@/features/auth/actions";
+import { useRealtimeAlerts } from "@/features/alerts/alert-context";
 import {
   LayoutDashboard,
   Users,
@@ -101,6 +102,7 @@ export const navItems: NavItem[] = [
 
 export function AdminSidebar({ role }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { unacknowledgedCount } = useRealtimeAlerts();
 
   // Filter items based on staff role
   const visibleItems = navItems.filter((item) => {
@@ -120,6 +122,11 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
             {visibleItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
+              const showLiveBadge =
+                unacknowledgedCount > 0 &&
+                (item.href === "/kitchen" ||
+                  item.href === "/bar" ||
+                  item.href === "/admin/operations");
 
               return (
                 <Link
@@ -144,11 +151,18 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
                     />
                     <span>{item.title}</span>
                   </div>
-                  {item.phase && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-asador-deep text-asador-ash">
-                      {item.phase}
-                    </span>
-                  )}
+                  <div className="flex items-center space-x-1.5">
+                    {showLiveBadge && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#5C1D24] text-[#FAF7F2] animate-pulse-calm">
+                        {unacknowledgedCount}
+                      </span>
+                    )}
+                    {item.phase && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-asador-deep text-asador-ash">
+                        {item.phase}
+                      </span>
+                    )}
+                  </div>
                 </Link>
               );
             })}

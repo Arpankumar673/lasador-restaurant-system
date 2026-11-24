@@ -5,6 +5,7 @@ import { ItemPrepStatus, ItemStation } from "@/types/database.types";
 import { updateOrderItemStatus, fetchBarTickets } from "../actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AudioAlarmWidget } from "@/features/alerts/audio-alarm-widget";
 import {
   Beer,
   Sparkles,
@@ -169,17 +170,9 @@ export function BarDisplayView({ initialItems, canUpdate }: BarDisplayViewProps)
             <Sparkles className="h-3.5 w-3.5 mr-1 text-asador-copper" /> Cocktails
           </Button>
 
-          <button
-            onClick={() => setSoundEnabled((s) => !s)}
-            className={`min-h-11 min-w-11 h-11 w-11 flex items-center justify-center p-2 rounded-asador border text-xs transition-colors shrink-0 ${
-              soundEnabled
-                ? "bg-asador-emerald/20 border-asador-emeraldBorder text-asador-emeraldText"
-                : "bg-asador-surface border-asador-border text-asador-silver hover:text-asador-parchment"
-            }`}
-            title={soundEnabled ? "Mute chimes" : "Enable sound alerts"}
-          >
-            {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
-          </button>
+          <div className="border-l border-asador-border pl-2 shrink-0">
+            <AudioAlarmWidget />
+          </div>
         </div>
       </div>
 
