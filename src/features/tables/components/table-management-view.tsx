@@ -222,12 +222,12 @@ export function TableManagementView({
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
             Dining Tables & QR Tokens
           </h1>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             Manage floor layout, table capacities, cryptographic QR codes, and active dining sessions.
           </p>
         </div>
@@ -236,7 +236,7 @@ export function TableManagementView({
           <Button
             size="sm"
             variant="default"
-            className="text-xs"
+            className="min-h-11 sm:h-9 text-xs font-semibold px-4 w-full sm:w-auto"
             onClick={() => {
               setEditingTable(null);
               setIsTableModalOpen(true);
@@ -279,11 +279,11 @@ export function TableManagementView({
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
               <Button
                 variant={selectedZone === "all" ? "default" : "outline"}
                 size="sm"
-                className="text-xs h-8"
+                className="text-xs h-8 px-3 shrink-0 whitespace-nowrap"
                 onClick={() => setSelectedZone("all")}
               >
                 All Zones
@@ -293,7 +293,7 @@ export function TableManagementView({
                   key={z}
                   variant={selectedZone === z ? "default" : "outline"}
                   size="sm"
-                  className="text-xs h-8"
+                  className="text-xs h-8 px-3 shrink-0 whitespace-nowrap"
                   onClick={() => setSelectedZone(z)}
                 >
                   {z}
@@ -305,7 +305,7 @@ export function TableManagementView({
       </Card>
 
       {/* Tables Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {filteredTables.map((table) => {
           const hasActiveToken = Boolean(table.active_token);
           const isOccupied = Boolean(table.active_session && table.active_session.status === "active");
@@ -318,46 +318,46 @@ export function TableManagementView({
               }`}
             >
               <div>
-                <CardHeader className="p-4 pb-2 bg-asador-deep/50 border-b border-asador-border">
-                  <div className="flex items-center justify-between">
-                    <span className="font-serif text-2xl font-bold tracking-tight text-asador-parchment">
+                <CardHeader className="p-2.5 sm:p-4 pb-2 bg-asador-deep/50 border-b border-asador-border">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-asador-parchment truncate">
                       {table.table_number}
                     </span>
                     <Badge
                       variant={table.is_active ? (isOccupied ? "copper" : "hops") : "outline"}
-                      className="text-[10px]"
+                      className="text-[9px] sm:text-[10px] px-1.5 py-0.5 shrink-0"
                     >
                       {table.is_active ? (isOccupied ? "Occupied" : "Available") : "Inactive"}
                     </Badge>
                   </div>
-                  <CardDescription className="text-xs text-asador-silver mt-0.5">
+                  <CardDescription className="text-[10px] sm:text-xs text-asador-silver mt-0.5 truncate">
                     {table.label || "No custom label"}
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="p-4 space-y-3">
-                  <div className="grid grid-cols-2 gap-2 text-xs text-asador-silver">
-                    <div className="flex items-center space-x-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-asador-copper shrink-0" />
+                <CardContent className="p-2.5 sm:p-4 space-y-2 sm:space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 text-[11px] sm:text-xs text-asador-silver">
+                    <div className="flex items-center space-x-1 sm:space-x-1.5 min-w-0">
+                      <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-asador-copper shrink-0" />
                       <span className="truncate">{table.zone}</span>
                     </div>
 
-                    <div className="flex items-center space-x-1.5">
-                      <Users className="h-3.5 w-3.5 text-asador-malt shrink-0" />
-                      <span>{table.capacity} Guests</span>
+                    <div className="flex items-center space-x-1 sm:space-x-1.5">
+                      <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-asador-malt shrink-0" />
+                      <span className="truncate">{table.capacity} Guests</span>
                     </div>
                   </div>
 
                   {/* QR Token Status */}
-                  <div className="rounded-asador border border-asador-border bg-asador-deep p-2.5 flex items-center justify-between text-xs">
-                    <div className="flex items-center space-x-2">
-                      <QrCode className="h-4 w-4 text-asador-ember shrink-0" />
-                      <div>
-                        <span className="text-[11px] font-semibold text-asador-parchment block">
-                          {hasActiveToken ? "QR Code Active" : "No Active QR"}
+                  <div className="rounded-asador border border-asador-border bg-asador-deep p-2 sm:p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
+                    <div className="flex items-center space-x-1.5 min-w-0">
+                      <QrCode className="h-3.5 w-3.5 text-asador-ember shrink-0" />
+                      <div className="min-w-0">
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-asador-parchment block truncate">
+                          {hasActiveToken ? "QR Active" : "No QR"}
                         </span>
-                        <span className="text-[10px] text-asador-silver font-mono block truncate max-w-[140px]">
-                          {hasActiveToken ? "Hashed SHA-256" : "Revoked"}
+                        <span className="text-[9px] sm:text-[10px] text-asador-silver font-mono block truncate max-w-[100px] sm:max-w-[140px]">
+                          {hasActiveToken ? "SHA-256" : "Revoked"}
                         </span>
                       </div>
                     </div>
@@ -366,7 +366,7 @@ export function TableManagementView({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 px-2 text-xs text-asador-parchment hover:text-asador-ember"
+                        className="min-h-[28px] h-7 px-2 text-[10px] sm:text-xs text-asador-parchment hover:text-asador-ember w-full sm:w-auto"
                         onClick={() => openQrModal(table)}
                       >
                         View QR
@@ -377,12 +377,12 @@ export function TableManagementView({
               </div>
 
               {canManage && (
-                <div className="p-3 border-t border-asador-border bg-asador-deep/30 flex items-center justify-between gap-1 text-xs">
-                  <div className="flex items-center space-x-1">
+                <div className="p-2 sm:p-3 border-t border-asador-border bg-asador-deep/30 flex items-center justify-between gap-1 text-xs">
+                  <div className="flex items-center space-x-0.5 sm:space-x-1">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 px-2 text-[11px]"
+                      className="h-7 px-1.5 sm:px-2 text-[10px] sm:text-[11px]"
                       onClick={() => {
                         setEditingTable(table);
                         setIsTableModalOpen(true);
@@ -438,15 +438,15 @@ export function TableManagementView({
           MODAL: ADD / EDIT TABLE
           ===================================================================== */}
       {isTableModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-md max-h-[90dvh] overflow-y-auto rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <h3 className="font-serif text-lg font-bold text-asador-parchment">
                 {editingTable ? "Edit Table" : "Add Dining Table"}
               </h3>
               <button
                 onClick={() => setIsTableModalOpen(false)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -480,7 +480,7 @@ export function TableManagementView({
                   showToast("error", res.error || "Failed to save.");
                 }
               }}
-              className="p-6 space-y-4"
+              className="p-5 sm:p-6 space-y-4 pb-safe"
             >
               {editingTable && <input type="hidden" name="id" value={editingTable.id} />}
 
@@ -544,11 +544,12 @@ export function TableManagementView({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="min-h-11 h-11 px-4 text-xs"
                   onClick={() => setIsTableModalOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" variant="default">
+                <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs">
                   {editingTable ? "Save Changes" : "Create Table"}
                 </Button>
               </div>
@@ -561,8 +562,8 @@ export function TableManagementView({
           MODAL: VIEW & PRINT QR CODE
           ===================================================================== */}
       {activeQrModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-[92vw] max-w-sm rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden max-h-[92dvh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-asador-border px-5 py-3.5 bg-asador-deep">
               <div>
                 <h3 className="font-serif text-base font-bold text-asador-parchment">
@@ -572,21 +573,21 @@ export function TableManagementView({
               </div>
               <button
                 onClick={() => setActiveQrModal(null)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 flex flex-col items-center space-y-4">
+            <div className="p-4 sm:p-6 flex flex-col items-center space-y-4">
               {/* QR Code Graphic Container */}
               <div
-                className="p-4 bg-white rounded-asador shadow-inner border border-asador-border"
+                className="flex items-center justify-center p-3 sm:p-4 bg-white rounded-asador shadow-inner border border-asador-border [&>svg]:w-full [&>svg]:max-w-[240px] sm:[&>svg]:max-w-[260px] [&>svg]:h-auto mx-auto"
                 dangerouslySetInnerHTML={{ __html: activeQrModal.svgContent }}
               />
 
-              <div className="text-center space-y-1">
-                <span className="font-mono text-xs text-asador-silver block truncate max-w-[280px]">
+              <div className="text-center space-y-1 w-full px-2">
+                <span className="font-mono text-xs text-asador-silver block truncate max-w-full">
                   {activeQrModal.customerUrl}
                 </span>
                 <span className="text-[11px] text-asador-copper block">
@@ -595,11 +596,11 @@ export function TableManagementView({
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-3 gap-2 w-full pt-2">
+              <div className="grid grid-cols-3 gap-2 w-full pt-1">
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-8 px-2"
+                  className="min-h-11 h-11 text-xs font-semibold px-2 flex items-center justify-center"
                   onClick={copyUrl}
                 >
                   {copied ? (
@@ -616,7 +617,7 @@ export function TableManagementView({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-xs h-8 px-2"
+                  className="min-h-11 h-11 text-xs font-semibold px-2 flex items-center justify-center"
                   onClick={downloadSvg}
                 >
                   <Download className="h-3.5 w-3.5 mr-1" /> SVG
@@ -625,7 +626,7 @@ export function TableManagementView({
                 <Button
                   size="sm"
                   variant="default"
-                  className="text-xs h-8 px-2"
+                  className="min-h-11 h-11 text-xs font-semibold px-2 flex items-center justify-center"
                   onClick={printQrLabel}
                 >
                   <Printer className="h-3.5 w-3.5 mr-1" /> Print
@@ -633,12 +634,12 @@ export function TableManagementView({
               </div>
 
               {/* Open in new tab preview */}
-              <div className="pt-2 w-full text-center">
+              <div className="pt-1 w-full text-center">
                 <a
                   href={activeQrModal.customerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center text-xs text-asador-silver hover:text-asador-ember py-1 transition-colors"
+                  className="min-h-11 inline-flex items-center justify-center text-xs text-asador-silver hover:text-asador-ember py-2 transition-colors"
                 >
                   <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Open Customer View
                 </a>

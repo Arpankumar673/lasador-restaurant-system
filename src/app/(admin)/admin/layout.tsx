@@ -10,12 +10,12 @@ export default async function AdminLayout({
   const staff = await getCurrentStaff();
 
   return (
-    <div className="flex min-h-screen flex-col bg-asador-deep">
+    <div className="flex min-h-screen flex-col bg-asador-deep w-full overflow-x-hidden">
       <AdminHeader staff={staff?.profile || null} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 w-full min-w-0">
         {staff && <AdminSidebar role={staff.profile.role} />}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto max-w-7xl">{children}</div>
+        <main className="flex-1 min-w-0 overflow-y-auto p-3 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl w-full">{children}</div>
         </main>
       </div>
     </div>

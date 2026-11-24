@@ -66,17 +66,17 @@ export function RestaurantSettingsView({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
             Restaurant Settings
           </h1>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             Configure restaurant identity, operating schedule, and statutory tax parameters.
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Badge variant={canManage ? "hops" : "outline"} className="text-xs">
+          <Badge variant={canManage ? "hops" : "outline"} className="text-xs w-fit">
             <Shield className="mr-1 h-3.5 w-3.5" />
             {canManage ? "Owner/Admin Permissions Active" : "Read-Only View"}
           </Badge>
@@ -84,10 +84,10 @@ export function RestaurantSettingsView({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-asador-border space-x-2">
+      <div className="flex border-b border-asador-border space-x-2 overflow-x-auto no-scrollbar max-w-full">
         <button
           onClick={() => setActiveTab("general")}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+          className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 shrink-0 whitespace-nowrap min-h-11 transition-colors ${
             activeTab === "general"
               ? "border-asador-ember text-asador-ember"
               : "border-transparent text-asador-silver hover:text-asador-parchment"
@@ -99,7 +99,7 @@ export function RestaurantSettingsView({
 
         <button
           onClick={() => setActiveTab("hours")}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+          className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 shrink-0 whitespace-nowrap min-h-11 transition-colors ${
             activeTab === "hours"
               ? "border-asador-ember text-asador-ember"
               : "border-transparent text-asador-silver hover:text-asador-parchment"
@@ -111,7 +111,7 @@ export function RestaurantSettingsView({
 
         <button
           onClick={() => setActiveTab("taxes")}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+          className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 shrink-0 whitespace-nowrap min-h-11 transition-colors ${
             activeTab === "taxes"
               ? "border-asador-ember text-asador-ember"
               : "border-transparent text-asador-silver hover:text-asador-parchment"
@@ -321,7 +321,7 @@ export function RestaurantSettingsView({
 
           {canManage && (
             <div className="flex justify-end">
-              <Button type="submit" variant="default" size="lg" isLoading={isLoading}>
+              <Button type="submit" variant="default" size="lg" isLoading={isLoading} className="min-h-11 h-11 px-6 w-full sm:w-auto font-semibold">
                 <Save className="mr-2 h-4 w-4" />
                 Save Restaurant Settings
               </Button>

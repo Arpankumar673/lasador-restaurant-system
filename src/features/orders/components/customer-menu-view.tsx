@@ -257,14 +257,14 @@ export function CustomerMenuView({
       {/* =====================================================================
           HEADER & BRAND BANNER
           ===================================================================== */}
-      <header className="sticky top-0 z-30 bg-asador-card/95 backdrop-blur-md border-b border-asador-border px-4 py-3 shadow-md">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-asador-card/95 backdrop-blur-md border-b border-asador-border px-3 sm:px-4 py-2.5 sm:py-3 shadow-md">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="p-1.5 rounded-asador bg-asador-ember/20 text-asador-ember">
+            <div className="p-1.5 rounded-asador bg-asador-ember/20 text-asador-ember shrink-0">
               <Flame className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="font-serif text-lg font-bold tracking-tight text-asador-parchment leading-tight">
+              <h1 className="font-serif text-base sm:text-lg font-bold tracking-tight text-asador-parchment leading-tight">
                 L&apos;Asador
               </h1>
               <span className="text-[10px] uppercase tracking-widest text-asador-copper font-medium block">
@@ -282,14 +282,14 @@ export function CustomerMenuView({
         </div>
 
         {/* Search Input */}
-        <div className="max-w-3xl mx-auto mt-2.5">
+        <div className="max-w-5xl mx-auto mt-2 sm:mt-2.5">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-asador-silver" />
             <Input
               placeholder="Search dishes, steaks, beers, craft cocktails..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 bg-asador-deep border-asador-border text-xs h-8 text-asador-parchment placeholder:text-asador-silver/60"
+              className="pl-8 bg-asador-deep border-asador-border text-xs h-9 text-asador-parchment placeholder:text-asador-silver/60"
             />
           </div>
         </div>
@@ -298,11 +298,11 @@ export function CustomerMenuView({
       {/* =====================================================================
           HORIZONTAL CATEGORY PILLS BAR
           ===================================================================== */}
-      <nav className="sticky top-[95px] z-20 bg-asador-card/90 backdrop-blur-md border-b border-asador-border px-4 py-2 overflow-x-auto no-scrollbar shadow-sm">
-        <div className="max-w-3xl mx-auto flex items-center space-x-2">
+      <nav className="sticky top-[86px] sm:top-[92px] z-20 bg-asador-card/90 backdrop-blur-md border-b border-asador-border px-3 sm:px-4 py-2 overflow-x-auto no-scrollbar shadow-sm">
+        <div className="max-w-5xl mx-auto flex items-center space-x-2">
           <button
             onClick={() => setActiveCategorySlug("all")}
-            className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-colors ${
+            className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-colors min-h-9 flex items-center ${
               activeCategorySlug === "all"
                 ? "bg-asador-ember text-asador-parchment shadow-sm"
                 : "bg-asador-deep text-asador-silver hover:text-asador-parchment"
@@ -315,7 +315,7 @@ export function CustomerMenuView({
             <button
               key={cat.id}
               onClick={() => setActiveCategorySlug(cat.slug)}
-              className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-colors ${
+              className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-colors min-h-9 flex items-center ${
                 activeCategorySlug === cat.slug
                   ? "bg-asador-ember text-asador-parchment shadow-sm"
                   : "bg-asador-deep text-asador-silver hover:text-asador-parchment"
@@ -328,9 +328,9 @@ export function CustomerMenuView({
       </nav>
 
       {/* =====================================================================
-          MENU DISHES LIST
+          MENU DISHES GRID
           ===================================================================== */}
-      <main className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+      <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4">
         {displayedProducts.length === 0 ? (
           <div className="text-center py-12 text-asador-silver">
             <UtensilsCrossed className="h-8 w-8 mx-auto mb-2 opacity-40" />
@@ -338,86 +338,91 @@ export function CustomerMenuView({
             <p className="text-xs mt-1">Try adjusting your search query.</p>
           </div>
         ) : (
-          displayedProducts.map((product) => {
-            const primaryImg = product.images.find((img) => img.is_primary) || product.images[0];
-            const hasVariants = product.variants.length > 0;
-            const hasModifiers = product.modifier_groups.length > 0;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {displayedProducts.map((product) => {
+              const primaryImg = product.images.find((img) => img.is_primary) || product.images[0];
+              const hasVariants = product.variants.length > 0;
+              const hasModifiers = product.modifier_groups.length > 0;
 
-            return (
-              <div
-                key={product.id}
-                onClick={() => product.is_available && openCustomizer(product)}
-                className={`rounded-asador border border-asador-border bg-asador-card p-3 sm:p-4 flex items-start justify-between gap-3 transition-all ${
-                  product.is_available
-                    ? "cursor-pointer hover:border-asador-copper/60 active:scale-[0.99]"
-                    : "opacity-50 cursor-not-allowed"
-                }`}
-              >
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center space-x-1.5 flex-wrap gap-1">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${dietaryBadges[product.dietary].color}`}>
-                      {dietaryBadges[product.dietary].label}
-                    </span>
-                    {product.is_featured && (
-                      <span className="text-[10px] text-asador-malt font-semibold flex items-center space-x-0.5">
-                        <Star className="h-2.5 w-2.5 fill-current" />
-                        <span>Chef&apos;s Pick</span>
-                      </span>
-                    )}
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => product.is_available && openCustomizer(product)}
+                  className={`rounded-asador border border-asador-border bg-asador-card p-3 sm:p-4 flex flex-col justify-between gap-3 transition-all ${
+                    product.is_available
+                      ? "cursor-pointer hover:border-asador-copper/60 active:scale-[0.99]"
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center space-x-1.5 flex-wrap gap-1">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${dietaryBadges[product.dietary].color}`}>
+                          {dietaryBadges[product.dietary].label}
+                        </span>
+                        {product.is_featured && (
+                          <span className="text-[10px] text-asador-malt font-semibold flex items-center space-x-0.5">
+                            <Star className="h-2.5 w-2.5 fill-current" />
+                            <span>Chef&apos;s Pick</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="font-serif text-base font-bold text-asador-parchment leading-snug">
+                        {product.name.replace(/\[.*?\]/g, "").trim()}
+                      </h3>
+
+                      <p className="text-xs text-asador-silver line-clamp-2 leading-relaxed">
+                        {product.description || "Fresh wood-fired culinary creation."}
+                      </p>
+                    </div>
+
+                    {/* Dish Image Thumbnail */}
+                    <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-asador bg-asador-deep border border-asador-border overflow-hidden shrink-0 flex items-center justify-center">
+                      {primaryImg ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={primaryImg.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Flame className="h-6 w-6 text-asador-silver/30" />
+                      )}
+                    </div>
                   </div>
 
-                  <h3 className="font-serif text-base font-bold text-asador-parchment leading-snug">
-                    {product.name.replace(/\[.*?\]/g, "").trim()}
-                  </h3>
-
-                  <p className="text-xs text-asador-silver line-clamp-2 leading-relaxed">
-                    {product.description || "Fresh wood-fired culinary creation."}
-                  </p>
-
-                  <div className="pt-1 flex items-center space-x-2">
-                    <span className="font-serif text-sm font-bold text-asador-ember">
-                      ₹{Number(product.base_price).toFixed(2)}
-                    </span>
-                    {(hasVariants || hasModifiers) && (
-                      <span className="text-[10px] text-asador-copper font-medium">
-                        Customizable &bull;
+                  {/* Bottom: Price & Add Button */}
+                  <div className="flex items-center justify-between pt-2 border-t border-asador-border/60">
+                    <div className="flex items-baseline space-x-1.5">
+                      <span className="font-serif text-base font-bold text-asador-ember">
+                        ₹{Number(product.base_price).toFixed(2)}
                       </span>
-                    )}
-                  </div>
-                </div>
+                      {(hasVariants || hasModifiers) && (
+                        <span className="text-[10px] text-asador-copper font-medium">
+                          Customizable
+                        </span>
+                      )}
+                    </div>
 
-                {/* Right side: Thumbnail & Add button */}
-                <div className="relative shrink-0 flex flex-col items-center">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-asador bg-asador-deep border border-asador-border overflow-hidden flex items-center justify-center">
-                    {primaryImg ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={primaryImg.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
+                    {product.is_available ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openCustomizer(product);
+                        }}
+                        className="min-h-11 min-w-[76px] px-3.5 py-2 rounded-full bg-asador-surface hover:bg-asador-ember text-asador-parchment border border-asador-border text-xs font-bold tracking-wide transition-all shadow-sm active:scale-95 flex items-center justify-center"
+                      >
+                        + ADD
+                      </button>
                     ) : (
-                      <Flame className="h-6 w-6 text-asador-silver/30" />
+                      <span className="text-xs text-asador-silver font-medium py-1 px-2">Sold Out</span>
                     )}
                   </div>
-
-                  {product.is_available ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openCustomizer(product);
-                      }}
-                      className="mt-1 px-3 py-1 rounded-full bg-asador-surface hover:bg-asador-ember text-asador-parchment border border-asador-border text-xs font-semibold tracking-wide transition-all shadow-sm active:scale-95"
-                    >
-                      + ADD
-                    </button>
-                  ) : (
-                    <span className="text-[10px] text-asador-silver mt-1">Sold Out</span>
-                  )}
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </main>
 
@@ -425,11 +430,11 @@ export function CustomerMenuView({
           FLOATING BOTTOM CART BAR
           ===================================================================== */}
       {cart.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-40 p-3 bg-gradient-to-t from-asador-dark via-asador-dark/95 to-transparent">
-          <div className="max-w-3xl mx-auto">
+        <div className="fixed bottom-0 inset-x-0 z-40 p-3 pb-safe bg-gradient-to-t from-asador-dark via-asador-dark/95 to-transparent">
+          <div className="max-w-5xl mx-auto">
             <button
               onClick={() => setIsCartOpen(true)}
-              className="w-full rounded-asador bg-asador-ember hover:bg-asador-flame text-asador-parchment p-3.5 flex items-center justify-between shadow-ember-glow transition-all active:scale-[0.99]"
+              className="w-full min-h-12 rounded-asador bg-asador-ember hover:bg-asador-flame text-asador-parchment p-3.5 flex items-center justify-between shadow-ember-glow transition-all active:scale-[0.99]"
             >
               <div className="flex items-center space-x-2.5">
                 <div className="p-1.5 rounded-full bg-black/20">
@@ -458,8 +463,8 @@ export function CustomerMenuView({
           MODAL: PRODUCT CUSTOMIZATION DRAWER
           ===================================================================== */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-t-asador-lg sm:rounded-asador-lg border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-2xl border border-asador-border bg-asador-card shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-asador-border px-5 py-3.5 bg-asador-deep">
               <div>
@@ -472,7 +477,7 @@ export function CustomerMenuView({
               </div>
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="p-2 rounded-asador text-asador-silver hover:text-asador-parchment min-h-11 min-w-11 flex items-center justify-center"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -591,30 +596,32 @@ export function CustomerMenuView({
               </div>
 
               {/* Quantity Selector */}
-              <div className="flex items-center justify-between pt-2 border-t border-asador-border">
+              <div className="flex items-center justify-between pt-3 border-t border-asador-border">
                 <span className="text-xs uppercase font-semibold text-asador-silver">Quantity</span>
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setCustomizingQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 h-8 rounded-full border border-asador-border bg-asador-deep flex items-center justify-center text-asador-parchment hover:bg-asador-surface"
+                    className="min-h-11 min-w-11 w-11 h-11 rounded-full border border-asador-border bg-asador-deep flex items-center justify-center text-asador-parchment hover:bg-asador-surface active:scale-95 transition-all"
+                    aria-label="Decrease quantity"
                   >
-                    <Minus className="h-3.5 w-3.5" />
+                    <Minus className="h-4 w-4" />
                   </button>
-                  <span className="font-bold text-sm text-asador-parchment w-6 text-center">
+                  <span className="font-bold text-base text-asador-parchment w-7 text-center">
                     {customizingQuantity}
                   </span>
                   <button
                     onClick={() => setCustomizingQuantity((q) => q + 1)}
-                    className="w-8 h-8 rounded-full border border-asador-border bg-asador-deep flex items-center justify-center text-asador-parchment hover:bg-asador-surface"
+                    className="min-h-11 min-w-11 w-11 h-11 rounded-full border border-asador-border bg-asador-deep flex items-center justify-center text-asador-parchment hover:bg-asador-surface active:scale-95 transition-all"
+                    aria-label="Increase quantity"
                   >
-                    <Plus className="h-3.5 w-3.5" />
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="border-t border-asador-border p-4 bg-asador-deep flex items-center justify-between">
+            <div className="border-t border-asador-border p-4 pb-safe bg-asador-deep flex items-center justify-between gap-3">
               <div>
                 <span className="text-[11px] text-asador-silver block">Total Price</span>
                 <span className="font-serif text-lg font-bold text-asador-ember">
@@ -622,7 +629,7 @@ export function CustomerMenuView({
                 </span>
               </div>
 
-              <Button size="sm" variant="default" onClick={addToCart} className="text-xs px-5">
+              <Button size="default" variant="default" onClick={addToCart} className="min-h-11 text-xs px-6 font-bold">
                 Add to Cart
               </Button>
             </div>
@@ -634,8 +641,8 @@ export function CustomerMenuView({
           MODAL: CART REVIEW & ORDER SUBMISSION DRAWER
           ===================================================================== */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-t-asador-lg sm:rounded-asador-lg border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-2xl border border-asador-border bg-asador-card shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-asador-border px-5 py-3.5 bg-asador-deep">
               <div>
@@ -646,14 +653,15 @@ export function CustomerMenuView({
               </div>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="p-2 rounded-asador text-asador-silver hover:text-asador-parchment min-h-11 min-w-11 flex items-center justify-center"
+                aria-label="Close cart"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Items List */}
-            <div className="p-5 space-y-3 overflow-y-auto flex-1">
+            <div className="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1">
               {orderError && (
                 <div className="rounded-asador border border-asador-flame/40 bg-asador-flame/15 p-2.5 text-xs text-asador-parchment flex items-center space-x-2">
                   <AlertCircle className="h-4 w-4 text-asador-ember shrink-0" />
@@ -664,9 +672,9 @@ export function CustomerMenuView({
               {cart.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-asador border border-asador-border bg-asador-deep p-3 space-y-2"
+                  className="rounded-asador border border-asador-border bg-asador-deep p-3 space-y-2.5"
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-2">
                     <div>
                       <h4 className="text-xs font-bold text-asador-parchment">
                         {item.product.name.replace(/\[.*?\]/g, "").trim()}
@@ -688,12 +696,12 @@ export function CustomerMenuView({
                       )}
                     </div>
 
-                    <span className="font-serif text-xs font-bold text-asador-ember">
+                    <span className="font-serif text-xs font-bold text-asador-ember shrink-0">
                       ₹{(item.calculatedUnitPrice * item.quantity).toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-asador-border/50">
+                  <div className="flex items-center justify-between pt-2 border-t border-asador-border/50">
                     <span className="text-[11px] text-asador-silver font-mono">
                       ₹{item.calculatedUnitPrice.toFixed(2)} each
                     </span>
@@ -701,16 +709,18 @@ export function CustomerMenuView({
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-6 h-6 rounded border border-asador-border bg-asador-surface flex items-center justify-center text-asador-parchment text-xs"
+                        className="min-h-11 min-w-11 w-11 h-11 rounded-asador border border-asador-border bg-asador-surface flex items-center justify-center text-asador-parchment active:scale-95 transition-all"
+                        aria-label="Decrease quantity"
                       >
-                        <Minus className="h-3 w-3" />
+                        <Minus className="h-3.5 w-3.5" />
                       </button>
-                      <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                      <span className="text-xs font-bold w-5 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-6 h-6 rounded border border-asador-border bg-asador-surface flex items-center justify-center text-asador-parchment text-xs"
+                        className="min-h-11 min-w-11 w-11 h-11 rounded-asador border border-asador-border bg-asador-surface flex items-center justify-center text-asador-parchment active:scale-95 transition-all"
+                        aria-label="Increase quantity"
                       >
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
@@ -735,13 +745,13 @@ export function CustomerMenuView({
             </div>
 
             {/* Footer */}
-            <div className="border-t border-asador-border p-4 bg-asador-deep">
+            <div className="border-t border-asador-border p-4 pb-safe bg-asador-deep">
               <Button
                 size="default"
                 variant="default"
                 disabled={isSubmitting}
                 onClick={handleOrderSubmit}
-                className="w-full text-xs font-bold py-3"
+                className="w-full min-h-12 text-xs font-bold py-3.5"
               >
                 {isSubmitting ? (
                   <span className="flex items-center">

@@ -69,3 +69,20 @@
 .bg-ember-radial {
   background: radial-gradient(circle at 50% 50%, rgba(224, 90, 27, 0.15) 0%, rgba(13, 11, 10, 0.95) 80%);
 }
+
+/* Utilities for responsive mobile overflow and safe-areas */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.pt-safe {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}

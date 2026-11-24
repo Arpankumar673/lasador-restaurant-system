@@ -142,22 +142,22 @@ export function MenuManagementView({
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
             Menu Catalog & Customizations
           </h1>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             Artisanal wood-fired grill dishes, craft microbrewery beers, variants, and preparation stations.
           </p>
         </div>
 
         {canManage && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <Button
               size="sm"
               variant="default"
-              className="text-xs"
+              className="min-h-11 sm:h-9 text-xs font-semibold px-3"
               onClick={() => {
                 setEditingProduct(null);
                 setIsProductModalOpen(true);
@@ -169,7 +169,7 @@ export function MenuManagementView({
             <Button
               size="sm"
               variant="outline"
-              className="text-xs"
+              className="min-h-11 sm:h-9 text-xs font-semibold px-3"
               onClick={() => {
                 setEditingCategory(null);
                 setIsCategoryModalOpen(true);
@@ -181,7 +181,7 @@ export function MenuManagementView({
             <Button
               size="sm"
               variant="secondary"
-              className="text-xs"
+              className="min-h-11 sm:h-9 text-xs font-semibold px-3"
               onClick={() => setIsModifierGroupModalOpen(true)}
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />
@@ -210,10 +210,10 @@ export function MenuManagementView({
       )}
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-asador-border space-x-2">
+      <div className="flex border-b border-asador-border space-x-2 overflow-x-auto no-scrollbar max-w-full">
         <button
           onClick={() => setActiveTab("products")}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+          className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 shrink-0 whitespace-nowrap min-h-11 transition-colors ${
             activeTab === "products"
               ? "border-asador-ember text-asador-ember"
               : "border-transparent text-asador-silver hover:text-asador-parchment"
@@ -225,7 +225,7 @@ export function MenuManagementView({
 
         <button
           onClick={() => setActiveTab("categories")}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+          className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 shrink-0 whitespace-nowrap min-h-11 transition-colors ${
             activeTab === "categories"
               ? "border-asador-ember text-asador-ember"
               : "border-transparent text-asador-silver hover:text-asador-parchment"
@@ -237,7 +237,7 @@ export function MenuManagementView({
 
         <button
           onClick={() => setActiveTab("modifiers")}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+          className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 shrink-0 whitespace-nowrap min-h-11 transition-colors ${
             activeTab === "modifiers"
               ? "border-asador-ember text-asador-ember"
               : "border-transparent text-asador-silver hover:text-asador-parchment"
@@ -309,7 +309,7 @@ export function MenuManagementView({
           </Card>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {filteredProducts.map((product) => {
               const primaryImg = product.images.find((img) => img.is_primary) || product.images[0];
               const category = initialCategories.find((c) => c.id === product.category_id);
@@ -668,15 +668,15 @@ export function MenuManagementView({
           MODAL: CREATE / EDIT PRODUCT
           ===================================================================== */}
       {isProductModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl max-h-[90vh] flex flex-col rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-xl max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <h3 className="font-serif text-lg font-bold text-asador-parchment">
                 {editingProduct ? "Edit Product Dish" : "Create New Dish / Brew"}
               </h3>
               <button
                 onClick={() => setIsProductModalOpen(false)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -697,7 +697,7 @@ export function MenuManagementView({
                   showToast("error", res.error || "Failed to save product.");
                 }
               }}
-              className="p-6 space-y-4 overflow-y-auto"
+              className="p-5 sm:p-6 space-y-4 overflow-y-auto"
             >
               {editingProduct && <input type="hidden" name="id" value={editingProduct.id} />}
 
@@ -841,11 +841,12 @@ export function MenuManagementView({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="min-h-11 h-11 px-4 text-xs"
                   onClick={() => setIsProductModalOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" variant="default">
+                <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs font-semibold">
                   {editingProduct ? "Save Changes" : "Create Product"}
                 </Button>
               </div>
@@ -858,15 +859,15 @@ export function MenuManagementView({
           MODAL: CREATE / EDIT CATEGORY
           ===================================================================== */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-md max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <h3 className="font-serif text-lg font-bold text-asador-parchment">
                 {editingCategory ? "Edit Category" : "Create Category"}
               </h3>
               <button
                 onClick={() => setIsCategoryModalOpen(false)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -887,7 +888,7 @@ export function MenuManagementView({
                   showToast("error", res.error || "Failed to save category.");
                 }
               }}
-              className="p-6 space-y-4"
+              className="p-5 sm:p-6 space-y-4 overflow-y-auto"
             >
               {editingCategory && <input type="hidden" name="id" value={editingCategory.id} />}
 
@@ -963,11 +964,12 @@ export function MenuManagementView({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="min-h-11 h-11 px-4 text-xs"
                   onClick={() => setIsCategoryModalOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" variant="default">
+                <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs font-semibold">
                   {editingCategory ? "Save Changes" : "Create Category"}
                 </Button>
               </div>
@@ -980,9 +982,9 @@ export function MenuManagementView({
           MODAL: MANAGE VARIANTS FOR PRODUCT
           ===================================================================== */}
       {activeVariantProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-lg max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <div>
                 <h3 className="font-serif text-lg font-bold text-asador-parchment">
                   Portion & Size Variants
@@ -991,13 +993,13 @@ export function MenuManagementView({
               </div>
               <button
                 onClick={() => setActiveVariantProduct(null)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-5 sm:p-6 space-y-4 overflow-y-auto">
               {/* Existing Variants */}
               <div className="space-y-2">
                 <span className="text-xs uppercase font-semibold text-asador-silver">Configured Variants</span>
@@ -1066,9 +1068,9 @@ export function MenuManagementView({
           MODAL: MANAGE MODIFIER GROUPS FOR PRODUCT
           ===================================================================== */}
       {activeModifiersProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-lg max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <div>
                 <h3 className="font-serif text-lg font-bold text-asador-parchment">
                   Attached Modifier Groups
@@ -1077,13 +1079,13 @@ export function MenuManagementView({
               </div>
               <button
                 onClick={() => setActiveModifiersProduct(null)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-5 sm:p-6 space-y-4 overflow-y-auto">
               {/* Existing Groups Attached */}
               <div className="space-y-2">
                 <span className="text-xs uppercase font-semibold text-asador-silver">Currently Attached</span>
@@ -1156,15 +1158,15 @@ export function MenuManagementView({
           MODAL: CREATE MODIFIER GROUP
           ===================================================================== */}
       {isModifierGroupModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-md max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <h3 className="font-serif text-lg font-bold text-asador-parchment">
                 Create Modifier Group
               </h3>
               <button
                 onClick={() => setIsModifierGroupModalOpen(false)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1182,7 +1184,7 @@ export function MenuManagementView({
                   showToast("error", res.error || "Failed to create group.");
                 }
               }}
-              className="p-6 space-y-4"
+              className="p-5 sm:p-6 space-y-4 overflow-y-auto"
             >
               <div className="space-y-1">
                 <label className="text-xs uppercase font-semibold text-asador-silver">Group Name</label>
@@ -1223,11 +1225,12 @@ export function MenuManagementView({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="min-h-11 h-11 px-4 text-xs"
                   onClick={() => setIsModifierGroupModalOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" variant="default">
+                <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs font-semibold">
                   Create Group
                 </Button>
               </div>
@@ -1240,15 +1243,15 @@ export function MenuManagementView({
           MODAL: ADD MODIFIER OPTION
           ===================================================================== */}
       {activeModifierGroupId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-sm max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <h3 className="font-serif text-lg font-bold text-asador-parchment">
                 Add Option Choice
               </h3>
               <button
                 onClick={() => setActiveModifierGroupId(null)}
-                className="p-1 rounded-asador text-asador-silver hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1267,7 +1270,7 @@ export function MenuManagementView({
                   showToast("error", res.error || "Failed to add option.");
                 }
               }}
-              className="p-6 space-y-4"
+              className="p-5 sm:p-6 space-y-4 overflow-y-auto"
             >
               <div className="space-y-1">
                 <label className="text-xs uppercase font-semibold text-asador-silver">Option Name</label>
@@ -1289,11 +1292,12 @@ export function MenuManagementView({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="min-h-11 h-11 px-4 text-xs"
                   onClick={() => setActiveModifierGroupId(null)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" size="sm" variant="default">
+                <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs font-semibold">
                   Add Option
                 </Button>
               </div>

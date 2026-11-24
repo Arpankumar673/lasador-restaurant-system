@@ -23,7 +23,7 @@ interface AdminSidebarProps {
   role?: StaffRole;
 }
 
-interface NavItem {
+export interface NavItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -31,7 +31,7 @@ interface NavItem {
   minRoles?: StaffRole[];
 }
 
-const navItems: NavItem[] = [
+export const navItems: NavItem[] = [
   {
     title: "Overview",
     href: "/admin",

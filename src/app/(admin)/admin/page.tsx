@@ -99,10 +99,10 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-8">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
               Executive Console
             </h1>
             {currentStaff && (
@@ -111,13 +111,13 @@ export default async function AdminOverviewPage() {
               </Badge>
             )}
           </div>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             L&apos;Asador – Grill & Brew &bull; Sector 82, JLPL Industrial Area, Mohali, Punjab
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
-          <Badge variant="hops" className="text-xs py-1">
+          <Badge variant="hops" className="text-xs py-1 w-fit">
             <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
             Phase 3 Admin Live
           </Badge>
@@ -125,7 +125,7 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* Welcome Banner */}
-      <div className="rounded-asador-lg border border-asador-copper/40 bg-asador-card p-5 sm:p-6 shadow-md">
+      <div className="rounded-asador-lg border border-asador-copper/40 bg-asador-card p-4 sm:p-6 shadow-md">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <span className="text-xs uppercase tracking-widest text-asador-copper font-semibold flex items-center">
@@ -140,18 +140,18 @@ export default async function AdminOverviewPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             {canManageStaff && (
-              <Link prefetch={false} href="/admin/staff">
-                <Button size="sm" variant="default" className="text-xs">
+              <Link prefetch={false} href="/admin/staff" className="flex-1 sm:flex-initial">
+                <Button size="sm" variant="default" className="w-full text-xs min-h-11 sm:h-9 font-semibold">
                   <Users className="h-3.5 w-3.5 mr-1.5" />
                   Staff Roster
                 </Button>
               </Link>
             )}
             {canManageSettings && (
-              <Link prefetch={false} href="/admin/settings">
-                <Button size="sm" variant="outline" className="text-xs">
+              <Link prefetch={false} href="/admin/settings" className="flex-1 sm:flex-initial">
+                <Button size="sm" variant="outline" className="w-full text-xs min-h-11 sm:h-9 font-semibold">
                   <Settings className="h-3.5 w-3.5 mr-1.5" />
                   Settings
                 </Button>
@@ -162,10 +162,10 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* Quick Access Action Modules */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         {/* Module 1: Staff Management */}
         <Card className="border-asador-border bg-asador-card hover:border-asador-copper/60 transition-all flex flex-col justify-between">
-          <CardHeader className="pb-3">
+          <CardHeader className="p-4 pb-3">
             <div className="flex items-center justify-between">
               <div className="p-2.5 rounded-asador bg-asador-ember/15 text-asador-ember border border-asador-ember/30">
                 <Users className="h-5 w-5" />
@@ -181,14 +181,14 @@ export default async function AdminOverviewPage() {
               Provision administrative credentials, assign roles (Owner, Admin, Manager, Kitchen, Bar), and manage staff access.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="p-4 pt-0">
             {canManageStaff ? (
-              <Link prefetch={false} href="/admin/staff" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-ember py-1 transition-colors">
+              <Link prefetch={false} href="/admin/staff" className="min-h-11 flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-ember py-2 transition-colors border-t border-asador-border/40">
                 <span>Manage Staff</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
             ) : (
-              <span className="text-[11px] text-asador-silver italic flex items-center">
+              <span className="text-[11px] text-asador-silver italic flex items-center py-2">
                 <ShieldAlert className="h-3.5 w-3.5 mr-1 text-asador-flame" /> Requires staff:view permission
               </span>
             )}
@@ -197,7 +197,7 @@ export default async function AdminOverviewPage() {
 
         {/* Module 2: Restaurant Settings */}
         <Card className="border-asador-border bg-asador-card hover:border-asador-copper/60 transition-all flex flex-col justify-between">
-          <CardHeader className="pb-3">
+          <CardHeader className="p-4 pb-3">
             <div className="flex items-center justify-between">
               <div className="p-2.5 rounded-asador bg-asador-copper/15 text-asador-copper border border-asador-copper/30">
                 <Store className="h-5 w-5" />
@@ -213,14 +213,14 @@ export default async function AdminOverviewPage() {
               Manage trade information, Mohali location address, GSTIN, FSSAI licensing, operating schedule, and emergency killswitch.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="p-4 pt-0">
             {canManageSettings ? (
-              <Link prefetch={false} href="/admin/settings" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-copper py-1 transition-colors">
+              <Link prefetch={false} href="/admin/settings" className="min-h-11 flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-copper py-2 transition-colors border-t border-asador-border/40">
                 <span>Configure Settings</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
             ) : (
-              <span className="text-[11px] text-asador-silver italic flex items-center">
+              <span className="text-[11px] text-asador-silver italic flex items-center py-2">
                 <ShieldAlert className="h-3.5 w-3.5 mr-1 text-asador-flame" /> Requires settings:view permission
               </span>
             )}
@@ -229,7 +229,7 @@ export default async function AdminOverviewPage() {
 
         {/* Module 3: Audit Logging */}
         <Card className="border-asador-border bg-asador-card hover:border-asador-copper/60 transition-all flex flex-col justify-between">
-          <CardHeader className="pb-3">
+          <CardHeader className="p-4 pb-3">
             <div className="flex items-center justify-between">
               <div className="p-2.5 rounded-asador bg-asador-malt/15 text-asador-malt border border-asador-malt/30">
                 <FileText className="h-5 w-5" />
@@ -245,14 +245,14 @@ export default async function AdminOverviewPage() {
               Inspect immutable audit records with automatic password redaction, actor attribution, and Indian Standard Time timestamps.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="p-4 pt-0">
             {canViewAudit ? (
-              <Link prefetch={false} href="/admin/audit-logs" className="flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-malt py-1 transition-colors">
+              <Link prefetch={false} href="/admin/audit-logs" className="min-h-11 flex items-center justify-between text-xs font-medium text-asador-parchment hover:text-asador-malt py-2 transition-colors border-t border-asador-border/40">
                 <span>Inspect Logs</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
             ) : (
-              <span className="text-[11px] text-asador-silver italic flex items-center">
+              <span className="text-[11px] text-asador-silver italic flex items-center py-2">
                 <ShieldAlert className="h-3.5 w-3.5 mr-1 text-asador-flame" /> Requires audit:view permission
               </span>
             )}

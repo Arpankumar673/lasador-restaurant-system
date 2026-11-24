@@ -70,7 +70,7 @@ export function PublicHeader() {
         <div className="md:hidden flex items-center">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-asador-silver hover:text-asador-parchment"
+            className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment hover:bg-asador-surface"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? (
@@ -85,25 +85,25 @@ export function PublicHeader() {
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-asador-border bg-asador-surface px-4 py-6 space-y-4">
-          <nav className="flex flex-col space-y-4 text-base font-medium">
+          <nav className="flex flex-col space-y-3 text-base font-medium">
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-asador-parchment hover:text-asador-ember"
+              className="py-2 text-asador-parchment hover:text-asador-ember transition-colors"
             >
               Home
             </Link>
             <Link
               href="#concept"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-asador-silver hover:text-asador-ember"
+              className="py-2 text-asador-silver hover:text-asador-ember transition-colors"
             >
               The Concept
             </Link>
             <Link
               href="#craft-taps"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-asador-silver hover:text-asador-malt flex items-center space-x-2"
+              className="py-2 text-asador-silver hover:text-asador-malt flex items-center space-x-2 transition-colors"
             >
               <Beer className="h-4 w-4 text-asador-malt" />
               <span>Craft Taps</span>
@@ -111,13 +111,13 @@ export function PublicHeader() {
             <Link
               href="#grill"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-asador-silver hover:text-asador-ember"
+              className="py-2 text-asador-silver hover:text-asador-ember transition-colors"
             >
               Wood-Fired Grill
             </Link>
             <div className="pt-2">
               <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="copper" className="w-full">
+                <Button variant="copper" className="w-full min-h-11 h-11 text-xs font-semibold">
                   <ShieldCheck className="mr-2 h-4 w-4" />
                   Access Admin Portal
                 </Button>

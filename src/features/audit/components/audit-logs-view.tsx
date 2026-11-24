@@ -119,93 +119,93 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
             Audit Trail
           </h1>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             Immutable chronological record of administrative and security events for L&apos;Asador.
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="text-xs border-asador-border bg-asador-deep text-asador-parchment">
+          <Badge variant="outline" className="text-xs border-asador-border bg-asador-deep text-asador-parchment w-fit">
             <Activity className="mr-1.5 h-3.5 w-3.5 text-asador-ember" />
-            {initialLogs.length} Total Events Recorded
+            {initialLogs.length} Total Events
           </Badge>
         </div>
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Total Log Entries
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-asador-parchment">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-asador-parchment font-mono">
               {initialLogs.length}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-asador-silver flex items-center">
-            <Layers className="h-3.5 w-3.5 mr-1 text-asador-copper" />
-            Persistent PostgreSQL audit table
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-xs text-asador-silver flex items-center">
+            <Layers className="h-3.5 w-3.5 mr-1 text-asador-copper shrink-0" />
+            PostgreSQL audit log
           </CardContent>
         </Card>
 
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Filtered Events
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-asador-ember">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-asador-ember font-mono">
               {filteredLogs.length}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-asador-silver flex items-center">
-            <Filter className="h-3.5 w-3.5 mr-1 text-asador-ember" />
-            Matching current query and filters
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-xs text-asador-silver flex items-center">
+            <Filter className="h-3.5 w-3.5 mr-1 text-asador-ember shrink-0" />
+            Matching search filters
           </CardContent>
         </Card>
 
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Security Standard
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-[#5dd974]">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-[#5dd974]">
               Sanitized
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-asador-silver flex items-center">
-            <Shield className="h-3.5 w-3.5 mr-1 text-[#5dd974]" />
-            Passwords and tokens redacted automatically
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-xs text-asador-silver flex items-center">
+            <Shield className="h-3.5 w-3.5 mr-1 text-[#5dd974] shrink-0" />
+            Tokens redacted
           </CardContent>
         </Card>
       </div>
 
       {/* Search and Filters */}
       <Card className="border-asador-border bg-asador-card">
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 space-y-3">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-asador-silver" />
               <Input
                 placeholder="Search by action, entity, actor email, or entity ID..."
-                className="pl-9 bg-asador-deep border-asador-border"
+                className="pl-9 bg-asador-deep border-asador-border text-xs h-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-asador-silver font-medium mr-1 flex items-center">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
+              <span className="text-xs text-asador-silver font-medium mr-1 flex items-center shrink-0">
                 <Filter className="h-3 w-3 mr-1" /> Scope:
               </span>
               <Button
                 variant={entityFilter === "all" ? "default" : "outline"}
                 size="sm"
-                className="text-xs h-8"
+                className="text-xs h-8 px-2.5 shrink-0 whitespace-nowrap"
                 onClick={() => setEntityFilter("all")}
               >
                 All
@@ -213,7 +213,7 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
               <Button
                 variant={entityFilter === "auth" ? "default" : "outline"}
                 size="sm"
-                className="text-xs h-8"
+                className="text-xs h-8 px-2.5 shrink-0 whitespace-nowrap"
                 onClick={() => setEntityFilter("auth")}
               >
                 Auth
@@ -221,7 +221,7 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
               <Button
                 variant={entityFilter === "staff" ? "default" : "outline"}
                 size="sm"
-                className="text-xs h-8"
+                className="text-xs h-8 px-2.5 shrink-0 whitespace-nowrap"
                 onClick={() => setEntityFilter("staff")}
               >
                 Staff
@@ -231,7 +231,7 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
                   key={ent}
                   variant={entityFilter === ent ? "default" : "outline"}
                   size="sm"
-                  className="text-xs h-8 capitalize"
+                  className="text-xs h-8 px-2.5 capitalize shrink-0 whitespace-nowrap"
                   onClick={() => setEntityFilter(ent)}
                 >
                   {ent.replace(/_/g, " ")}
@@ -242,134 +242,196 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
         </CardContent>
       </Card>
 
-      {/* Logs Table */}
+      {/* Logs View (Dual-Mode: Mobile Cards + Desktop Table) */}
       <Card className="border-asador-border bg-asador-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-asador-deep border-b border-asador-border text-xs uppercase tracking-wider text-asador-silver font-semibold">
-              <tr>
-                <th className="py-3 px-4">Timestamp (IST)</th>
-                <th className="py-3 px-4">Action</th>
-                <th className="py-3 px-4">Entity</th>
-                <th className="py-3 px-4">Actor</th>
-                <th className="py-3 px-4">IP / Source</th>
-                <th className="py-3 px-4 text-right">Details</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-asador-border">
-              {filteredLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-asador-silver">
-                    <FileText className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                    <p className="font-medium text-asador-parchment">No audit log entries found</p>
-                    <p className="text-xs mt-1">
-                      {searchQuery || entityFilter !== "all"
-                        ? "Try adjusting your search criteria or filter scope."
-                        : "Audit events will appear here as administrative actions occur."}
-                    </p>
-                  </td>
-                </tr>
-              ) : (
-                filteredLogs.map((log) => (
-                  <tr
-                    key={log.id}
-                    className="hover:bg-asador-surface/30 transition-colors group cursor-pointer"
-                    onClick={() => setSelectedLog(log)}
-                  >
-                    <td className="py-3.5 px-4 text-xs font-mono text-asador-parchment whitespace-nowrap">
-                      <div className="flex items-center space-x-1.5">
-                        <Clock className="h-3.5 w-3.5 text-asador-silver" />
-                        <span>{formatISTDate(log.created_at)}</span>
-                      </div>
-                    </td>
+        {filteredLogs.length === 0 ? (
+          <div className="py-12 text-center text-asador-silver">
+            <FileText className="h-8 w-8 mx-auto mb-2 opacity-40" />
+            <p className="font-medium text-asador-parchment">No audit log entries found</p>
+            <p className="text-xs mt-1">
+              {searchQuery || entityFilter !== "all"
+                ? "Try adjusting your search criteria or filter scope."
+                : "Audit events will appear here as administrative actions occur."}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Mobile Stacked Audit Cards */}
+            <div className="md:hidden divide-y divide-asador-border">
+              {filteredLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="p-3.5 space-y-2 cursor-pointer hover:bg-asador-surface/30 transition-colors"
+                  onClick={() => setSelectedLog(log)}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant={getActionBadgeVariant(log.action)} className="font-mono text-[10px]">
+                      {log.action}
+                    </Badge>
+                    <div className="flex items-center space-x-1 text-[10px] font-mono text-asador-silver">
+                      <Clock className="h-3 w-3" />
+                      <span>{formatISTDate(log.created_at)}</span>
+                    </div>
+                  </div>
 
-                    <td className="py-3.5 px-4">
-                      <Badge variant={getActionBadgeVariant(log.action)} className="font-mono text-[11px]">
-                        {log.action}
-                      </Badge>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-xs font-mono text-asador-silver">
+                  <div className="flex items-center justify-between text-xs text-asador-silver py-1 border-y border-asador-border/40">
+                    <div>
+                      <span className="text-[10px] uppercase text-asador-ash block">Entity</span>
                       <span className="text-asador-parchment font-semibold">{log.entity}</span>
                       {log.entity_id && (
-                        <span className="text-[11px] block text-asador-silver truncate max-w-[120px]">
+                        <span className="text-[10px] block text-asador-silver truncate max-w-[140px]">
                           ID: {log.entity_id}
                         </span>
                       )}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-xs">
-                      {log.actor ? (
-                        <div>
-                          <span className="font-medium text-asador-parchment block">
-                            {log.actor.full_name}
-                          </span>
-                          <span className="text-[11px] text-asador-silver block truncate max-w-[160px]">
-                            {log.actor.email}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-xs italic text-asador-silver flex items-center">
-                          <Shield className="h-3 w-3 mr-1 text-asador-copper" />
-                          System / Service
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase text-asador-ash block">Actor</span>
+                      <span className="text-asador-parchment">
+                        {log.actor ? log.actor.full_name : "System"}
+                      </span>
+                      {log.actor?.email && (
+                        <span className="text-[10px] text-asador-silver block truncate max-w-[140px]">
+                          {log.actor.email}
                         </span>
                       )}
-                    </td>
+                    </div>
+                  </div>
 
-                    <td className="py-3.5 px-4 text-xs font-mono text-asador-silver">
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[10px] font-mono text-asador-silver">
                       {log.ip_address || "Internal"}
-                    </td>
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-11 h-11 px-3 text-xs text-asador-copper hover:text-asador-ember"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedLog(log);
+                      }}
+                    >
+                      <Eye className="h-4 w-4 mr-1 text-asador-copper" /> Inspect
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-xs text-asador-silver hover:text-asador-parchment"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedLog(log);
-                        }}
-                      >
-                        <Eye className="h-3.5 w-3.5 mr-1 text-asador-copper" />
-                        Inspect
-                      </Button>
-                    </td>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-asador-deep border-b border-asador-border text-xs uppercase tracking-wider text-asador-silver font-semibold">
+                  <tr>
+                    <th className="py-3 px-4">Timestamp (IST)</th>
+                    <th className="py-3 px-4">Action</th>
+                    <th className="py-3 px-4">Entity</th>
+                    <th className="py-3 px-4">Actor</th>
+                    <th className="py-3 px-4">IP / Source</th>
+                    <th className="py-3 px-4 text-right">Details</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="divide-y divide-asador-border">
+                  {filteredLogs.map((log) => (
+                    <tr
+                      key={log.id}
+                      className="hover:bg-asador-surface/30 transition-colors group cursor-pointer"
+                      onClick={() => setSelectedLog(log)}
+                    >
+                      <td className="py-3.5 px-4 text-xs font-mono text-asador-parchment whitespace-nowrap">
+                        <div className="flex items-center space-x-1.5">
+                          <Clock className="h-3.5 w-3.5 text-asador-silver" />
+                          <span>{formatISTDate(log.created_at)}</span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <Badge variant={getActionBadgeVariant(log.action)} className="font-mono text-[11px]">
+                          {log.action}
+                        </Badge>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-xs font-mono text-asador-silver">
+                        <span className="text-asador-parchment font-semibold">{log.entity}</span>
+                        {log.entity_id && (
+                          <span className="text-[11px] block text-asador-silver truncate max-w-[120px]">
+                            ID: {log.entity_id}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-xs">
+                        {log.actor ? (
+                          <div>
+                            <span className="font-medium text-asador-parchment block">
+                              {log.actor.full_name}
+                            </span>
+                            <span className="text-[11px] text-asador-silver block truncate max-w-[160px]">
+                              {log.actor.email}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs italic text-asador-silver flex items-center">
+                            <Shield className="h-3 w-3 mr-1 text-asador-copper" />
+                            System / Service
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-xs font-mono text-asador-silver">
+                        {log.ip_address || "Internal"}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs text-asador-silver hover:text-asador-parchment"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedLog(log);
+                          }}
+                        >
+                          <Eye className="h-3.5 w-3.5 mr-1 text-asador-copper" />
+                          Inspect
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </Card>
 
       {/* Detail Slide-Over / Modal */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-2xl max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-asador border border-asador-border bg-asador-card shadow-2xl overflow-hidden pb-safe">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-asador-border px-6 py-4 bg-asador-deep">
+            <div className="flex items-center justify-between border-b border-asador-border px-5 sm:px-6 py-4 bg-asador-deep">
               <div>
-                <h3 className="font-serif text-lg font-bold text-asador-parchment flex items-center space-x-2">
+                <h3 className="font-serif text-base sm:text-lg font-bold text-asador-parchment flex items-center space-x-2">
                   <span>Audit Event Inspection</span>
                   <Badge variant={getActionBadgeVariant(selectedLog.action)} className="font-mono text-xs">
                     {selectedLog.action}
                   </Badge>
                 </h3>
-                <p className="text-xs text-asador-silver font-mono mt-0.5">
+                <p className="text-xs text-asador-silver font-mono mt-0.5 truncate max-w-[260px] sm:max-w-none">
                   ID: {selectedLog.id}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedLog(null)}
-                className="rounded-asador p-1 text-asador-silver hover:text-asador-parchment hover:bg-asador-surface"
+                className="min-h-11 min-w-11 flex items-center justify-center rounded-asador p-2 text-asador-silver hover:text-asador-parchment hover:bg-asador-surface"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-4 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4 text-xs">
+            <div className="p-5 sm:p-6 space-y-4 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs">
                 <div className="space-y-1">
                   <span className="text-asador-silver uppercase tracking-wider font-semibold">Timestamp (IST)</span>
                   <p className="font-mono text-asador-parchment">{formatISTDate(selectedLog.created_at)}</p>
@@ -405,7 +467,7 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 text-xs text-asador-silver hover:text-asador-parchment"
+                      className="min-h-9 h-9 text-xs text-asador-silver hover:text-asador-parchment"
                       onClick={copyDetailsJson}
                     >
                       {copied ? (
@@ -434,11 +496,11 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-asador-border px-6 py-3 bg-asador-deep flex justify-end">
+            <div className="border-t border-asador-border px-5 sm:px-6 py-3.5 bg-asador-deep flex justify-end">
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs"
+                className="min-h-11 h-11 px-5 text-xs font-semibold"
                 onClick={() => setSelectedLog(null)}
               >
                 Close

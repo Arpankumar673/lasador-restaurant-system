@@ -108,11 +108,11 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
           </p>
 
           {/* Stepper Progress */}
-          <div className="pt-4 flex items-center justify-between relative max-w-md mx-auto">
+          <div className="pt-4 flex items-center justify-between relative max-w-md mx-auto px-1 sm:px-2">
             <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-asador-border -translate-y-1/2 z-0" />
             <div
               className="absolute top-1/2 left-4 h-0.5 bg-asador-ember -translate-y-1/2 z-0 transition-all duration-500"
-              style={{ width: `${(currentStep / (steps.length - 1)) * 90}%` }}
+              style={{ width: `${(currentStep / (steps.length - 1)) * 88}%` }}
             />
 
             {steps.map((st, i) => {
@@ -123,16 +123,16 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
               return (
                 <div key={st.status} className="relative z-10 flex flex-col items-center">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center border text-xs transition-all ${
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border text-xs transition-all ${
                       isPassed
                         ? "bg-asador-ember border-asador-ember text-asador-parchment shadow-ember-glow"
                         : "bg-asador-deep border-asador-border text-asador-silver"
                     } ${isCurrent ? "ring-2 ring-asador-malt ring-offset-2 ring-offset-asador-dark" : ""}`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <span
-                    className={`text-[10px] mt-1.5 font-medium whitespace-nowrap ${
+                    className={`text-[9px] sm:text-[10px] mt-1.5 font-medium tracking-tight whitespace-nowrap ${
                       isPassed ? "text-asador-parchment font-bold" : "text-asador-silver/60"
                     }`}
                   >
@@ -141,6 +141,34 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* 2-Column Mobile Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+          <div className="rounded-asador border border-asador-border bg-asador-card p-3 text-center">
+            <span className="text-[10px] text-asador-silver uppercase tracking-wider block">Dining Table</span>
+            <span className="font-bold text-xs sm:text-sm text-asador-parchment font-mono">
+              {order.table?.table_number || "T-01"}
+            </span>
+          </div>
+          <div className="rounded-asador border border-asador-border bg-asador-card p-3 text-center">
+            <span className="text-[10px] text-asador-silver uppercase tracking-wider block">Time Placed</span>
+            <span className="font-bold text-xs sm:text-sm text-asador-parchment font-mono">
+              {new Date(order.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          </div>
+          <div className="rounded-asador border border-asador-border bg-asador-card p-3 text-center">
+            <span className="text-[10px] text-asador-silver uppercase tracking-wider block">Total Items</span>
+            <span className="font-bold text-xs sm:text-sm text-asador-parchment font-mono">
+              {order.items?.length || 0}
+            </span>
+          </div>
+          <div className="rounded-asador border border-asador-border bg-asador-card p-3 text-center">
+            <span className="text-[10px] text-asador-silver uppercase tracking-wider block">Order Bill</span>
+            <span className="font-bold text-xs sm:text-sm text-asador-ember font-serif">
+              ₹{Number(order.total_amount).toFixed(2)}
+            </span>
           </div>
         </div>
 
@@ -231,12 +259,12 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
             </div>
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row gap-2">
+          <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
             <Button
               variant="outline"
               size="default"
               onClick={() => router.push(`/t/${token}`)}
-              className="flex-1 text-xs"
+              className="flex-1 min-h-12 text-xs font-semibold"
             >
               Order More Items
             </Button>
@@ -246,7 +274,7 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
               size="default"
               disabled={isRequestingBill}
               onClick={handleRequestBill}
-              className="flex-1 text-xs font-bold"
+              className="flex-1 min-h-12 text-xs font-bold"
             >
               <Receipt className="h-4 w-4 mr-1.5" />
               {isRequestingBill ? "Requesting..." : "Request Bill & Settle"}

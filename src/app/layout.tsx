@@ -36,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark scroll-smooth">
-      <body className="min-h-screen bg-asador-bg text-asador-parchment antialiased selection:bg-asador-ember selection:text-asador-parchment">
+      <body className="min-h-screen bg-asador-bg text-asador-parchment antialiased selection:bg-asador-ember selection:text-asador-parchment overflow-x-hidden min-w-0 w-full">
         {children}
       </body>
     </html>

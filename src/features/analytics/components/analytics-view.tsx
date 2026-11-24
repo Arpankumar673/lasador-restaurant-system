@@ -57,76 +57,76 @@ export function AnalyticsView({ summary }: AnalyticsViewProps) {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
             Restaurant Sales & Analytics
           </h1>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             Ground-truth performance metrics aggregated directly from L&apos;Asador PostgreSQL records.
           </p>
         </div>
 
-        <Badge variant="hops" className="text-xs">
+        <Badge variant="hops" className="text-xs w-fit">
           <TrendingUp className="h-3.5 w-3.5 mr-1" /> Realtime Metrics
         </Badge>
       </div>
 
       {/* Top KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="p-4 pb-1">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
-              Gross Realized Revenue
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
+              Gross Revenue
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-asador-ember font-serif">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-asador-ember font-serif">
               ₹{summary.totalRevenue.toFixed(2)}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-1 text-[11px] text-asador-silver">
-            From {summary.totalSettledBills} settled customer bills
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-[11px] text-asador-silver">
+            From {summary.totalSettledBills} settled bills
           </CardContent>
         </Card>
 
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="p-4 pb-1">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
-              Average Order Value (AOV)
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
+              Avg Order Value
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-asador-malt font-serif">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-asador-malt font-serif">
               ₹{summary.averageOrderValue.toFixed(2)}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-1 text-[11px] text-asador-silver">
-            Average per fulfilled guest ticket
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-[11px] text-asador-silver">
+            Average per guest ticket
           </CardContent>
         </Card>
 
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="p-4 pb-1">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Total Order Volume
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-asador-parchment font-mono">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-asador-parchment font-mono">
               {summary.totalOrdersCount}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-1 text-[11px] text-asador-silver">
-            {summary.completedOrdersCount} successfully served
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-[11px] text-asador-silver">
+            {summary.completedOrdersCount} served
           </CardContent>
         </Card>
 
         <Card className="border-asador-border bg-asador-card">
-          <CardHeader className="p-4 pb-1">
-            <CardDescription className="text-xs uppercase tracking-wider text-asador-silver">
+          <CardHeader className="p-3 sm:p-4 pb-1">
+            <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Settled Tables
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-[#5dd974] font-mono">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-[#5dd974] font-mono">
               {summary.totalSettledBills}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-1 text-[11px] text-asador-silver">
-            Closed dining table sessions
+          <CardContent className="p-3 sm:p-4 pt-1 text-[10px] sm:text-[11px] text-asador-silver">
+            Closed dining sessions
           </CardContent>
         </Card>
       </div>
@@ -241,7 +241,7 @@ export function AnalyticsView({ summary }: AnalyticsViewProps) {
         </CardHeader>
 
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
             {summary.stationBreakdown.map((st) => (
               <div
                 key={st.station}

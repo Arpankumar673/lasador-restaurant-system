@@ -134,13 +134,13 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
   return (
     <div className="min-h-screen bg-[#0D0B0A] text-asador-parchment p-4 sm:p-6 space-y-6">
       {/* Top Console Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-asador bg-asador-ember text-asador-parchment shadow-ember-glow">
             <Flame className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl font-bold tracking-tight text-asador-parchment">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-asador-parchment">
               Kitchen Display System (KDS)
             </h1>
             <p className="text-xs text-asador-silver">
@@ -150,11 +150,11 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
         </div>
 
         {/* Station Filters & Sound Toggle */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 max-w-full">
           <Button
             variant={stationFilter === "all_kitchen" ? "default" : "outline"}
             size="sm"
-            className="text-xs h-8"
+            className="text-xs h-8 px-3 shrink-0 whitespace-nowrap"
             onClick={() => setStationFilter("all_kitchen")}
           >
             All Stations ({items.length})
@@ -163,7 +163,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
           <Button
             variant={stationFilter === "kitchen_grill" ? "default" : "outline"}
             size="sm"
-            className="text-xs h-8"
+            className="text-xs h-8 px-3 shrink-0 whitespace-nowrap"
             onClick={() => setStationFilter("kitchen_grill")}
           >
             <Flame className="h-3.5 w-3.5 mr-1 text-asador-ember" /> Grill Hearth
@@ -172,7 +172,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
           <Button
             variant={stationFilter === "kitchen_fry" ? "default" : "outline"}
             size="sm"
-            className="text-xs h-8"
+            className="text-xs h-8 px-3 shrink-0 whitespace-nowrap"
             onClick={() => setStationFilter("kitchen_fry")}
           >
             <ChefHat className="h-3.5 w-3.5 mr-1 text-asador-flame" /> Fry & Sauté
@@ -181,7 +181,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
           <Button
             variant={stationFilter === "kitchen_pantry" ? "default" : "outline"}
             size="sm"
-            className="text-xs h-8"
+            className="text-xs h-8 px-3 shrink-0 whitespace-nowrap"
             onClick={() => setStationFilter("kitchen_pantry")}
           >
             <UtensilsCrossed className="h-3.5 w-3.5 mr-1 text-asador-copper" /> Pantry
@@ -189,14 +189,14 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
 
           <button
             onClick={() => setSoundEnabled((s) => !s)}
-            className={`p-2 rounded-asador border text-xs transition-colors ${
+            className={`min-h-11 min-w-11 h-11 w-11 flex items-center justify-center p-2 rounded-asador border text-xs transition-colors shrink-0 ${
               soundEnabled
                 ? "bg-asador-hops/20 border-asador-hops text-[#5dd974]"
                 : "bg-asador-surface border-asador-border text-asador-silver hover:text-asador-parchment"
             }`}
             title={soundEnabled ? "Mute chimes" : "Enable sound alerts"}
           >
-            {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
           </button>
         </div>
       </div>
@@ -209,7 +209,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
           <p className="text-xs mt-1">Incoming wood-fired orders from guest QR codes will appear here in real-time.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {ordersGrouped.map(({ order, items: orderItems }) => {
             const elapsed = getElapsedMinutes(order.created_at);
             const isUrgent = elapsed > 20;
@@ -323,7 +323,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-8 text-xs font-bold w-full bg-asador-deep hover:bg-asador-ember hover:border-asador-ember"
+                                className="min-h-11 h-11 text-xs font-bold w-full bg-asador-deep hover:bg-asador-ember hover:border-asador-ember"
                                 onClick={() => handleStatusAdvance(item.id, "pending")}
                               >
                                 Start Cooking
@@ -334,10 +334,10 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <Button
                                 size="sm"
                                 variant="default"
-                                className="h-8 text-xs font-bold w-full shadow-ember-glow"
+                                className="min-h-11 h-11 text-xs font-bold w-full shadow-ember-glow"
                                 onClick={() => handleStatusAdvance(item.id, "preparing")}
                               >
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Ready
+                                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark Ready
                               </Button>
                             )}
 
@@ -345,10 +345,10 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <Button
                                 size="sm"
                                 variant="secondary"
-                                className="h-8 text-xs font-bold w-full border-[#5dd974]/40 text-[#5dd974]"
+                                className="min-h-11 h-11 text-xs font-bold w-full border-[#5dd974]/40 text-[#5dd974]"
                                 onClick={() => handleStatusAdvance(item.id, "ready")}
                               >
-                                <Check className="h-3.5 w-3.5 mr-1" /> Handed to Server
+                                <Check className="h-4 w-4 mr-1.5" /> Handed to Server
                               </Button>
                             )}
                           </div>

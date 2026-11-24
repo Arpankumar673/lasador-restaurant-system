@@ -117,12 +117,12 @@ export function StaffManagementView({
   return (
     <div className="space-y-6">
       {/* Top Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-asador-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight text-asador-parchment">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-asador-parchment">
             Staff Management
           </h1>
-          <p className="text-sm text-asador-silver mt-1">
+          <p className="text-xs sm:text-sm text-asador-silver mt-1">
             Provision, manage roles, and monitor active staff accounts for L&apos;Asador – Grill & Brew.
           </p>
         </div>
@@ -131,7 +131,7 @@ export function StaffManagementView({
           <Button
             variant="default"
             onClick={() => setIsProvisionOpen(true)}
-            className="shrink-0"
+            className="min-h-11 sm:h-9 text-xs font-semibold px-4 w-full sm:w-auto shrink-0"
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Provision Staff
@@ -147,16 +147,16 @@ export function StaffManagementView({
             placeholder="Search by staff name or email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 h-9 text-xs"
           />
         </div>
 
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0 max-w-full">
           {["all", "owner", "admin", "manager", "kitchen", "bar"].map((r) => (
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
-              className={`px-3 py-1.5 rounded-asador text-xs font-semibold uppercase tracking-wider transition-colors ${
+              className={`min-h-8 px-3 py-1.5 rounded-asador text-xs font-semibold uppercase tracking-wider shrink-0 whitespace-nowrap transition-colors ${
                 roleFilter === r
                   ? "bg-asador-ember text-asador-parchment"
                   : "bg-asador-surface text-asador-silver hover:bg-asador-surfaceHover"
@@ -168,60 +168,58 @@ export function StaffManagementView({
         </div>
       </div>
 
-      {/* Staff Table */}
-      <Card className="border-asador-border bg-asador-card">
+      {/* Staff View (Dual-Mode: Mobile Cards + Desktop Table) */}
+      <Card className="border-asador-border bg-asador-card overflow-hidden">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-asador-border bg-asador-surface/50 text-[11px] uppercase tracking-wider text-asador-ash">
-                  <th className="py-3.5 px-4 font-semibold">Staff Member</th>
-                  <th className="py-3.5 px-4 font-semibold">Role</th>
-                  <th className="py-3.5 px-4 font-semibold">Contact</th>
-                  <th className="py-3.5 px-4 font-semibold">Status</th>
-                  <th className="py-3.5 px-4 font-semibold">Created / Last Login</th>
-                  {canManage && <th className="py-3.5 px-4 font-semibold text-right">Actions</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-asador-borderMuted text-xs">
-                {filteredStaff.length > 0 ? (
-                  filteredStaff.map((staff) => {
-                    const isSelf = staff.id === currentUserId;
-                    const canEditThisStaff = canManage && canManageStaffRole(currentRole, staff.role);
+          {filteredStaff.length === 0 ? (
+            <div className="py-12 text-center text-asador-silver">
+              <Users className="mx-auto h-8 w-8 text-asador-ash mb-2" />
+              <p className="text-sm font-semibold">No staff members found.</p>
+              <p className="text-xs text-asador-ash mt-0.5">
+                {searchQuery ? "Try refining your search filter." : "Click Provision Staff to add the first staff account."}
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Stacked Staff Cards */}
+              <div className="md:hidden divide-y divide-asador-border">
+                {filteredStaff.map((staff) => {
+                  const isSelf = staff.id === currentUserId;
+                  const canEditThisStaff = canManage && canManageStaffRole(currentRole, staff.role);
 
-                    return (
-                      <tr key={staff.id} className="hover:bg-asador-surface/40 transition-colors">
-                        <td className="py-3.5 px-4">
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-asador-parchment">
-                              {staff.full_name || "Unnamed Staff"} {isSelf && "(You)"}
-                            </span>
-                            <span className="text-asador-silver text-[11px] flex items-center space-x-1">
-                              <Mail className="h-3 w-3 inline text-asador-ash" />
-                              <span>{staff.email}</span>
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <Badge
-                            variant={roleVariantMap[staff.role] || "default"}
-                            className="text-[10px] uppercase font-bold py-0.5 px-2"
-                          >
-                            <Shield className="mr-1 h-3 w-3" />
-                            {staff.role}
-                          </Badge>
-                        </td>
-                        <td className="py-3.5 px-4 text-asador-silver">
+                  return (
+                    <div key={staff.id} className="p-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <span className="font-semibold text-sm text-asador-parchment block">
+                            {staff.full_name || "Unnamed Staff"} {isSelf && "(You)"}
+                          </span>
+                          <span className="text-asador-silver text-xs flex items-center space-x-1 mt-0.5">
+                            <Mail className="h-3 w-3 inline text-asador-ash shrink-0" />
+                            <span className="truncate max-w-[200px]">{staff.email}</span>
+                          </span>
+                        </div>
+                        <Badge
+                          variant={roleVariantMap[staff.role] || "default"}
+                          className="text-[10px] uppercase font-bold py-0.5 px-2 shrink-0"
+                        >
+                          <Shield className="mr-1 h-3 w-3" />
+                          {staff.role}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs py-1.5 border-y border-asador-border/40 text-asador-silver">
+                        <div>
                           {staff.phone ? (
                             <span className="flex items-center space-x-1">
-                              <Phone className="h-3 w-3 text-asador-ash" />
+                              <Phone className="h-3 w-3 text-asador-ash shrink-0" />
                               <span>{staff.phone}</span>
                             </span>
                           ) : (
                             <span className="text-asador-ash italic">No phone</span>
                           )}
-                        </td>
-                        <td className="py-3.5 px-4">
+                        </div>
+                        <div>
                           {staff.is_active ? (
                             <span className="inline-flex items-center text-[11px] font-medium text-[#5dd974]">
                               <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
@@ -233,57 +231,136 @@ export function StaffManagementView({
                               Deactivated
                             </span>
                           )}
-                        </td>
-                        <td className="py-3.5 px-4 text-asador-silver">
-                          <div className="flex flex-col space-y-0.5 text-[11px]">
-                            <span className="flex items-center space-x-1">
-                              <Calendar className="h-3 w-3 text-asador-ash" />
-                              <span>{new Date(staff.created_at).toLocaleDateString()}</span>
-                            </span>
-                            <span className="flex items-center space-x-1 text-asador-ash">
-                              <Clock className="h-3 w-3" />
-                              <span>
-                                {staff.last_login_at
-                                  ? new Date(staff.last_login_at).toLocaleDateString()
-                                  : "Never"}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-[10px] text-asador-ash flex items-center space-x-1">
+                          <Clock className="h-3 w-3 shrink-0" />
+                          <span>Last login: {staff.last_login_at ? new Date(staff.last_login_at).toLocaleDateString() : "Never"}</span>
+                        </span>
+
+                        {canManage && canEditThisStaff && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingStaff(staff)}
+                            className="min-h-11 h-11 px-4 text-xs font-semibold"
+                          >
+                            <Edit2 className="mr-1.5 h-3.5 w-3.5" />
+                            Edit
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-asador-border bg-asador-surface/50 text-[11px] uppercase tracking-wider text-asador-ash">
+                      <th className="py-3.5 px-4 font-semibold">Staff Member</th>
+                      <th className="py-3.5 px-4 font-semibold">Role</th>
+                      <th className="py-3.5 px-4 font-semibold">Contact</th>
+                      <th className="py-3.5 px-4 font-semibold">Status</th>
+                      <th className="py-3.5 px-4 font-semibold">Created / Last Login</th>
+                      {canManage && <th className="py-3.5 px-4 font-semibold text-right">Actions</th>}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-asador-borderMuted text-xs">
+                    {filteredStaff.map((staff) => {
+                      const isSelf = staff.id === currentUserId;
+                      const canEditThisStaff = canManage && canManageStaffRole(currentRole, staff.role);
+
+                      return (
+                        <tr key={staff.id} className="hover:bg-asador-surface/40 transition-colors">
+                          <td className="py-3.5 px-4">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-asador-parchment">
+                                {staff.full_name || "Unnamed Staff"} {isSelf && "(You)"}
                               </span>
-                            </span>
-                          </div>
-                        </td>
-                        {canManage && (
-                          <td className="py-3.5 px-4 text-right">
-                            {canEditThisStaff ? (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setEditingStaff(staff)}
-                                className="h-7 px-2.5 text-[11px]"
-                              >
-                                <Edit2 className="mr-1 h-3 w-3" />
-                                Edit
-                              </Button>
+                              <span className="text-asador-silver text-[11px] flex items-center space-x-1">
+                                <Mail className="h-3 w-3 inline text-asador-ash" />
+                                <span>{staff.email}</span>
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <Badge
+                              variant={roleVariantMap[staff.role] || "default"}
+                              className="text-[10px] uppercase font-bold py-0.5 px-2"
+                            >
+                              <Shield className="mr-1 h-3 w-3" />
+                              {staff.role}
+                            </Badge>
+                          </td>
+                          <td className="py-3.5 px-4 text-asador-silver">
+                            {staff.phone ? (
+                              <span className="flex items-center space-x-1">
+                                <Phone className="h-3 w-3 text-asador-ash" />
+                                <span>{staff.phone}</span>
+                              </span>
                             ) : (
-                              <span className="text-[10px] text-asador-ash italic">Protected</span>
+                              <span className="text-asador-ash italic">No phone</span>
                             )}
                           </td>
-                        )}
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={canManage ? 6 : 5} className="py-12 text-center text-asador-silver">
-                      <Users className="mx-auto h-8 w-8 text-asador-ash mb-2" />
-                      <p className="text-sm font-semibold">No staff members found.</p>
-                      <p className="text-xs text-asador-ash mt-0.5">
-                        {searchQuery ? "Try refining your search filter." : "Click Provision Staff to add the first staff account."}
-                      </p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                          <td className="py-3.5 px-4">
+                            {staff.is_active ? (
+                              <span className="inline-flex items-center text-[11px] font-medium text-[#5dd974]">
+                                <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                                Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center text-[11px] font-medium text-asador-flame">
+                                <XCircle className="mr-1 h-3.5 w-3.5" />
+                                Deactivated
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4 text-asador-silver">
+                            <div className="flex flex-col space-y-0.5 text-[11px]">
+                              <span className="flex items-center space-x-1">
+                                <Calendar className="h-3 w-3 text-asador-ash" />
+                                <span>{new Date(staff.created_at).toLocaleDateString()}</span>
+                              </span>
+                              <span className="flex items-center space-x-1 text-asador-ash">
+                                <Clock className="h-3 w-3" />
+                                <span>
+                                  {staff.last_login_at
+                                    ? new Date(staff.last_login_at).toLocaleDateString()
+                                    : "Never"}
+                                </span>
+                              </span>
+                            </div>
+                          </td>
+                          {canManage && (
+                            <td className="py-3.5 px-4 text-right">
+                              {canEditThisStaff ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setEditingStaff(staff)}
+                                  className="h-7 px-2.5 text-[11px]"
+                                >
+                                  <Edit2 className="mr-1 h-3 w-3" />
+                                  Edit
+                                </Button>
+                              ) : (
+                                <span className="text-[10px] text-asador-ash italic">Protected</span>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -291,23 +368,23 @@ export function StaffManagementView({
           PROVISION STAFF MODAL
           ========================================================================= */}
       {isProvisionOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-lg border-asador-border bg-asador-card shadow-2xl">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full sm:max-w-lg max-h-[90dvh] overflow-y-auto rounded-t-2xl sm:rounded-asador border-asador-border bg-asador-card shadow-2xl pb-safe">
+            <CardHeader className="flex flex-row items-center justify-between px-5 sm:px-6 py-4 border-b border-asador-border bg-asador-deep">
               <div>
-                <CardTitle className="text-xl">Provision New Staff Account</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-lg sm:text-xl">Provision New Staff Account</CardTitle>
+                <CardDescription className="text-xs">
                   Creates an authorized account in Supabase Auth and links their profile.
                 </CardDescription>
               </div>
               <button
                 onClick={() => setIsProvisionOpen(false)}
-                className="text-asador-ash hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-ash hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5 sm:p-6">
               {provisionError && (
                 <div className="mb-4 flex items-start space-x-2.5 rounded-asador border border-asador-flame/40 bg-asador-flame/15 p-3 text-xs text-asador-parchment">
                   <AlertCircle className="h-4 w-4 text-asador-ember shrink-0 mt-0.5" />
@@ -327,26 +404,26 @@ export function StaffManagementView({
                   <label className="text-xs font-semibold uppercase tracking-wider text-asador-silver" htmlFor="fullName">
                     Full Name
                   </label>
-                  <Input id="fullName" name="fullName" placeholder="e.g. Chef Vikram Singh" required />
+                  <Input id="fullName" name="fullName" placeholder="e.g. Chef Vikram Singh" required className="h-9 text-xs" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold uppercase tracking-wider text-asador-silver" htmlFor="email">
                       Staff Email
                     </label>
-                    <Input id="email" name="email" type="email" placeholder="vikram@lasador.in" required />
+                    <Input id="email" name="email" type="email" placeholder="vikram@lasador.in" required className="h-9 text-xs" />
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-semibold uppercase tracking-wider text-asador-silver" htmlFor="phone">
                       Phone Number
                     </label>
-                    <Input id="phone" name="phone" placeholder="+91 98765 00000" />
+                    <Input id="phone" name="phone" placeholder="+91 98765 00000" className="h-9 text-xs" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold uppercase tracking-wider text-asador-silver" htmlFor="role">
                       Assigned Role
@@ -356,7 +433,7 @@ export function StaffManagementView({
                       name="role"
                       required
                       defaultValue="kitchen"
-                      className="flex h-10 w-full rounded-asador border border-asador-border bg-asador-deep px-3 py-2 text-sm text-asador-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-asador-ember"
+                      className="flex h-9 w-full rounded-asador border border-asador-border bg-asador-deep px-3 py-1.5 text-xs text-asador-parchment focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-asador-ember"
                     >
                       {currentRole === "owner" && <option value="owner">Owner (Full Control)</option>}
                       {currentRole === "owner" && <option value="admin">Administrator</option>}
@@ -377,20 +454,22 @@ export function StaffManagementView({
                       placeholder="Min 8 characters"
                       required
                       minLength={8}
+                      className="h-9 text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-3">
+                <div className="flex justify-end space-x-2 pt-3 border-t border-asador-border">
                   <Button
                     type="button"
                     variant="ghost"
                     onClick={() => setIsProvisionOpen(false)}
                     disabled={provisionLoading}
+                    className="min-h-11 h-11 px-4 text-xs"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" variant="default" isLoading={provisionLoading}>
+                  <Button type="submit" variant="default" isLoading={provisionLoading} className="min-h-11 h-11 px-5 text-xs font-semibold">
                     Provision Account
                   </Button>
                 </div>
@@ -404,23 +483,23 @@ export function StaffManagementView({
           EDIT STAFF MODAL
           ========================================================================= */}
       {editingStaff && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-lg border-asador-border bg-asador-card shadow-2xl">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full sm:max-w-lg max-h-[90dvh] overflow-y-auto rounded-t-2xl sm:rounded-asador border-asador-border bg-asador-card shadow-2xl pb-safe">
+            <CardHeader className="flex flex-row items-center justify-between px-5 sm:px-6 py-4 border-b border-asador-border bg-asador-deep">
               <div>
-                <CardTitle className="text-xl">Edit Staff Profile</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-lg sm:text-xl">Edit Staff Profile</CardTitle>
+                <CardDescription className="text-xs">
                   Update details, assign role, or activate/deactivate account access.
                 </CardDescription>
               </div>
               <button
                 onClick={() => setEditingStaff(null)}
-                className="text-asador-ash hover:text-asador-parchment"
+                className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-ash hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
               </button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5 sm:p-6">
               {editError && (
                 <div className="mb-4 flex items-start space-x-2.5 rounded-asador border border-asador-flame/40 bg-asador-flame/15 p-3 text-xs text-asador-parchment">
                   <AlertCircle className="h-4 w-4 text-asador-ember shrink-0 mt-0.5" />
@@ -440,15 +519,16 @@ export function StaffManagementView({
                     name="fullName"
                     defaultValue={editingStaff.full_name || ""}
                     required
+                    className="h-9 text-xs"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold uppercase tracking-wider text-asador-silver">
                       Email (Read Only)
                     </label>
-                    <Input value={editingStaff.email} disabled className="opacity-60 cursor-not-allowed" />
+                    <Input value={editingStaff.email} disabled className="opacity-60 cursor-not-allowed h-9 text-xs" />
                   </div>
 
                   <div className="space-y-1">
@@ -460,11 +540,12 @@ export function StaffManagementView({
                       name="phone"
                       defaultValue={editingStaff.phone || ""}
                       placeholder="+91 98765 00000"
+                      className="h-9 text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold uppercase tracking-wider text-asador-silver" htmlFor="editRole">
                       Assigned Role
@@ -475,7 +556,7 @@ export function StaffManagementView({
                       required
                       defaultValue={editingStaff.role}
                       disabled={editingStaff.id === currentUserId} // cannot modify own role
-                      className="flex h-10 w-full rounded-asador border border-asador-border bg-asador-deep px-3 py-2 text-sm text-asador-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-asador-ember disabled:opacity-50"
+                      className="flex h-9 w-full rounded-asador border border-asador-border bg-asador-deep px-3 py-1.5 text-xs text-asador-parchment focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-asador-ember disabled:opacity-50"
                     >
                       {currentRole === "owner" && <option value="owner">Owner (Full Control)</option>}
                       {currentRole === "owner" && <option value="admin">Administrator</option>}
@@ -498,7 +579,7 @@ export function StaffManagementView({
                       id="editIsActive"
                       name="isActive"
                       defaultValue={editingStaff.is_active ? "true" : "false"}
-                      className="flex h-10 w-full rounded-asador border border-asador-border bg-asador-deep px-3 py-2 text-sm text-asador-parchment focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-asador-ember"
+                      className="flex h-9 w-full rounded-asador border border-asador-border bg-asador-deep px-3 py-1.5 text-xs text-asador-parchment focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-asador-ember"
                     >
                       <option value="true">Active (Access Allowed)</option>
                       <option value="false">Deactivated (Access Blocked)</option>
@@ -506,16 +587,17 @@ export function StaffManagementView({
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-3">
+                <div className="flex justify-end space-x-2 pt-3 border-t border-asador-border">
                   <Button
                     type="button"
                     variant="ghost"
                     onClick={() => setEditingStaff(null)}
                     disabled={editLoading}
+                    className="min-h-11 h-11 px-4 text-xs"
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" variant="default" isLoading={editLoading}>
+                  <Button type="submit" variant="default" isLoading={editLoading} className="min-h-11 h-11 px-5 text-xs font-semibold">
                     Save Changes
                   </Button>
                 </div>
