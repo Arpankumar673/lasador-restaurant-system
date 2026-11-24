@@ -13,6 +13,7 @@ export interface TableActionResult {
   error?: string;
   message?: string;
   rawToken?: string;
+  table?: any;
 }
 
 const tableSchema = z.object({
@@ -25,6 +26,7 @@ const tableSchema = z.object({
 
 /**
  * Creates a new dining table and automatically provisions its initial high-entropy QR token.
+ * If a table with this number was previously archived/soft-deleted, it seamlessly restores and reactivates it.
  */
 export async function createDiningTable(formData: FormData): Promise<TableActionResult> {
   const caller = await getCurrentStaff();
@@ -36,7 +38,7 @@ export async function createDiningTable(formData: FormData): Promise<TableAction
   const label = String(formData.get("label") || "").trim() || null;
   const zone = String(formData.get("zone") || "Main Dining").trim();
   const capacity = Number(formData.get("capacity") || 4);
-  const isActive = formData.get("isActive") !== "false";
+  const isActive = formData.has("isActive") ? formData.get("isActive") === "true" || formData.get("isActive") === "on" : true;
 
   const parsed = tableSchema.safeParse({
     table_number: tableNumber,
@@ -51,8 +53,108 @@ export async function createDiningTable(formData: FormData): Promise<TableAction
   }
 
   const supabase = createAdminClient();
+  const nowIso = new Date().toISOString();
 
-  // Insert dining table
+  // 1. Check if a table with this table_number already exists in database (active or archived)
+  const { data: existingTable } = await supabase
+    .from("dining_tables")
+    .select("id, table_number, is_active, label, zone, capacity")
+    .ilike("table_number", tableNumber)
+    .maybeSingle();
+
+  if (existingTable) {
+    // If it is already active on the dining floor, inform the user clearly
+    if (existingTable.is_active !== false) {
+      return {
+        success: false,
+        error: `Table '${tableNumber}' already exists on the dining floor. Please choose a different table number (e.g. T-${Math.floor(Math.random() * 90 + 10)} or BAR-01).`,
+      };
+    }
+
+    // If it was previously archived / soft-deleted, reactivate and restore it with new parameters!
+    let savedTable: any = null;
+
+    const { data: reactivated, error: reactivateErr } = await (supabase.from("dining_tables") as any)
+      .update({
+        is_active: true,
+        deleted_at: null,
+        zone,
+        capacity,
+        label,
+        updated_at: nowIso,
+      })
+      .eq("id", existingTable.id)
+      .select()
+      .single();
+
+    if (reactivateErr) {
+      const { data: fallback, error: fallbackErr } = await supabase
+        .from("dining_tables")
+        .update({
+          is_active: true,
+          zone,
+          capacity,
+          label,
+          updated_at: nowIso,
+        })
+        .eq("id", existingTable.id)
+        .select()
+        .single();
+
+      if (fallbackErr) {
+        return { success: false, error: fallbackErr.message };
+      }
+      savedTable = fallback;
+    } else {
+      savedTable = reactivated;
+    }
+
+    // Revoke any previous tokens and generate a fresh secure QR token
+    const rawToken = generateSecureQrToken();
+    const tokenHash = hashQrToken(rawToken);
+
+    await supabase
+      .from("table_qr_tokens")
+      .update({ is_active: false, revoked_at: nowIso })
+      .eq("table_id", existingTable.id)
+      .eq("is_active", true);
+
+    const { data: newTokenRow } = await supabase
+      .from("table_qr_tokens")
+      .insert({
+        table_id: existingTable.id,
+        token_hash: tokenHash,
+        raw_token: rawToken,
+        expires_at: null,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    await logAuditEvent({
+      actorId: caller.userId,
+      action: "table:create",
+      entity: "dining_tables",
+      entityId: existingTable.id,
+      details: { table_number: tableNumber, zone, capacity, restored: true },
+    });
+
+    revalidatePath("/admin/tables");
+    revalidatePath("/admin/operations");
+
+    return {
+      success: true,
+      message: `Table '${tableNumber}' restored and added to floor layout with new QR code.`,
+      rawToken,
+      table: {
+        ...savedTable,
+        active_token: newTokenRow || null,
+        active_session: null,
+      },
+    };
+  }
+
+  // 2. Insert new dining table
   const { data: newTable, error: tableError } = await supabase
     .from("dining_tables")
     .insert(parsed.data)
@@ -61,7 +163,7 @@ export async function createDiningTable(formData: FormData): Promise<TableAction
 
   if (tableError) {
     if (tableError.code === "23505") {
-      return { success: false, error: `Table '${tableNumber}' already exists.` };
+      return { success: false, error: `Table '${tableNumber}' already exists on the dining floor.` };
     }
     return { success: false, error: tableError.message };
   }
@@ -70,13 +172,17 @@ export async function createDiningTable(formData: FormData): Promise<TableAction
   const rawToken = generateSecureQrToken();
   const tokenHash = hashQrToken(rawToken);
 
-  const { error: tokenError } = await supabase.from("table_qr_tokens").insert({
-    table_id: newTable.id,
-    token_hash: tokenHash,
-    raw_token: rawToken,
-    expires_at: null,
-    is_active: true,
-  });
+  const { data: newTokenRow, error: tokenError } = await supabase
+    .from("table_qr_tokens")
+    .insert({
+      table_id: newTable.id,
+      token_hash: tokenHash,
+      raw_token: rawToken,
+      expires_at: null,
+      is_active: true,
+    })
+    .select()
+    .single();
 
   if (tokenError) {
     console.error("Failed to generate initial QR token:", tokenError.message);
@@ -91,10 +197,16 @@ export async function createDiningTable(formData: FormData): Promise<TableAction
   });
 
   revalidatePath("/admin/tables");
+  revalidatePath("/admin/operations");
   return {
     success: true,
     message: `Table '${tableNumber}' created with active QR token.`,
     rawToken,
+    table: {
+      ...newTable,
+      active_token: newTokenRow || null,
+      active_session: null,
+    },
   };
 }
 
@@ -114,7 +226,7 @@ export async function updateDiningTable(formData: FormData): Promise<TableAction
   const label = String(formData.get("label") || "").trim() || null;
   const zone = String(formData.get("zone") || "Main Dining").trim();
   const capacity = Number(formData.get("capacity") || 4);
-  const isActive = formData.get("isActive") !== "false";
+  const isActive = formData.has("isActive") ? formData.get("isActive") === "true" || formData.get("isActive") === "on" : false;
 
   const parsed = tableSchema.safeParse({
     table_number: tableNumber,
@@ -130,13 +242,30 @@ export async function updateDiningTable(formData: FormData): Promise<TableAction
 
   const supabase = createAdminClient();
 
-  const { error } = await supabase
+  // Check if another active table already uses this table number
+  const { data: conflict } = await supabase
+    .from("dining_tables")
+    .select("id, table_number, is_active")
+    .ilike("table_number", tableNumber)
+    .neq("id", id)
+    .maybeSingle();
+
+  if (conflict && conflict.is_active !== false) {
+    return {
+      success: false,
+      error: `Table number '${tableNumber}' is already in use by another active table.`,
+    };
+  }
+
+  const { data: updatedTable, error } = await supabase
     .from("dining_tables")
     .update({
       ...parsed.data,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) {
     if (error.code === "23505") {
@@ -154,7 +283,12 @@ export async function updateDiningTable(formData: FormData): Promise<TableAction
   });
 
   revalidatePath("/admin/tables");
-  return { success: true, message: `Table '${tableNumber}' updated successfully.` };
+  revalidatePath("/admin/operations");
+  return {
+    success: true,
+    message: `Table '${tableNumber}' updated successfully.`,
+    table: updatedTable,
+  };
 }
 
 /**

@@ -70,6 +70,8 @@ export function TableManagementView({
   // Modals
   const [isTableModalOpen, setIsTableModalOpen] = React.useState(false);
   const [editingTable, setEditingTable] = React.useState<FullTable | null>(null);
+  const [tableModalError, setTableModalError] = React.useState<string | null>(null);
+  const [isSavingTable, setIsSavingTable] = React.useState(false);
   const [tableToDelete, setTableToDelete] = React.useState<FullTable | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
@@ -256,6 +258,8 @@ export function TableManagementView({
             className="min-h-11 sm:h-9 text-xs font-semibold px-4 w-full sm:w-auto"
             onClick={() => {
               setEditingTable(null);
+              setTableModalError(null);
+              setIsSavingTable(false);
               setIsTableModalOpen(true);
             }}
           >
@@ -407,6 +411,8 @@ export function TableManagementView({
                       className="h-7 px-1.5 sm:px-2 text-[10px] sm:text-[11px]"
                       onClick={() => {
                         setEditingTable(table);
+                        setTableModalError(null);
+                        setIsSavingTable(false);
                         setIsTableModalOpen(true);
                       }}
                     >
@@ -477,7 +483,11 @@ export function TableManagementView({
                 {editingTable ? "Edit Table" : "Add Dining Table"}
               </h3>
               <button
-                onClick={() => setIsTableModalOpen(false)}
+                type="button"
+                onClick={() => {
+                  setIsTableModalOpen(false);
+                  setTableModalError(null);
+                }}
                 className="min-h-11 min-w-11 flex items-center justify-center p-2 rounded-asador text-asador-silver hover:text-asador-parchment"
               >
                 <X className="h-5 w-5" />
@@ -487,35 +497,60 @@ export function TableManagementView({
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const res = editingTable
-                  ? await updateDiningTable(formData)
-                  : await createDiningTable(formData);
+                setIsSavingTable(true);
+                setTableModalError(null);
+                try {
+                  const formData = new FormData(e.currentTarget);
+                  const res = editingTable
+                    ? await updateDiningTable(formData)
+                    : await createDiningTable(formData);
 
-                if (res.success) {
-                  showToast("success", res.message || "Saved table.");
-                  setIsTableModalOpen(false);
-                  if (res.rawToken && !editingTable) {
-                    const tempTable: FullTable = {
-                      id: "temp",
-                      table_number: String(formData.get("tableNumber")),
-                      label: String(formData.get("label")),
-                      zone: String(formData.get("zone")),
-                      capacity: Number(formData.get("capacity")),
-                      is_active: true,
-                      deleted_at: null,
-                      created_at: new Date().toISOString(),
-                      updated_at: new Date().toISOString(),
-                    };
-                    openQrModal(tempTable, res.rawToken);
+                  setIsSavingTable(false);
+
+                  if (res.success) {
+                    showToast("success", res.message || "Saved table.");
+                    setIsTableModalOpen(false);
+                    setTableModalError(null);
+
+                    if (res.table) {
+                      setTables((prev) => {
+                        const index = prev.findIndex((t) => t.id === res.table.id);
+                        if (index >= 0) {
+                          const next = [...prev];
+                          next[index] = { ...next[index], ...res.table };
+                          return next;
+                        }
+                        return [...prev, res.table].sort((a, b) =>
+                          a.table_number.localeCompare(b.table_number, undefined, { numeric: true })
+                        );
+                      });
+                    }
+
+                    if (res.rawToken && res.table && !editingTable) {
+                      openQrModal(res.table, res.rawToken);
+                    }
+                  } else {
+                    setTableModalError(res.error || "Failed to save table.");
+                    showToast("error", res.error || "Failed to save table.");
                   }
-                } else {
-                  showToast("error", res.error || "Failed to save.");
+                } catch (err: any) {
+                  setIsSavingTable(false);
+                  const errMsg = err?.message || "An unexpected error occurred while saving table.";
+                  setTableModalError(errMsg);
+                  showToast("error", errMsg);
                 }
               }}
               className="p-5 sm:p-6 space-y-4 pb-safe"
             >
               {editingTable && <input type="hidden" name="id" value={editingTable.id} />}
+
+              {/* Error Message inside Modal */}
+              {tableModalError && (
+                <div className="p-3 rounded-asador bg-red-500/10 border border-red-500/30 text-xs text-red-700 dark:text-red-400 flex items-start space-x-2 animate-in fade-in">
+                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                  <span className="leading-relaxed font-medium">{tableModalError}</span>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -523,9 +558,11 @@ export function TableManagementView({
                   <Input
                     name="tableNumber"
                     required
+                    disabled={isSavingTable}
                     defaultValue={editingTable?.table_number || ""}
                     placeholder="e.g. T-04, BAR-03"
                   />
+                  <span className="text-[10px] text-asador-copper">Must be unique (e.g. T-09, BAR-01)</span>
                 </div>
 
                 <div className="space-y-1">
@@ -535,6 +572,7 @@ export function TableManagementView({
                     type="number"
                     min="1"
                     required
+                    disabled={isSavingTable}
                     defaultValue={editingTable?.capacity || 4}
                   />
                 </div>
@@ -545,6 +583,7 @@ export function TableManagementView({
                 <Input
                   name="zone"
                   required
+                  disabled={isSavingTable}
                   defaultValue={editingTable?.zone || "Main Dining"}
                   placeholder="e.g. Main Hearth Dining, Brew Deck, Courtyard"
                 />
@@ -554,6 +593,7 @@ export function TableManagementView({
                 <label className="text-xs uppercase font-semibold text-asador-silver">Table Label / Note</label>
                 <Input
                   name="label"
+                  disabled={isSavingTable}
                   defaultValue={editingTable?.label || ""}
                   placeholder="e.g. Window booth, High-top table"
                 />
@@ -565,6 +605,7 @@ export function TableManagementView({
                     type="checkbox"
                     name="isActive"
                     value="true"
+                    disabled={isSavingTable}
                     defaultChecked={editingTable ? editingTable.is_active : true}
                     className="rounded border-asador-border bg-asador-deep text-asador-ember"
                   />
@@ -579,6 +620,7 @@ export function TableManagementView({
                       type="button"
                       variant="ghost"
                       size="sm"
+                      disabled={isSavingTable}
                       className="min-h-11 h-11 px-3 text-xs text-asador-crimsonText hover:text-asador-crimson hover:bg-asador-crimson/10"
                       onClick={() => {
                         const target = editingTable;
@@ -596,12 +638,22 @@ export function TableManagementView({
                     variant="outline"
                     size="sm"
                     className="min-h-11 h-11 px-4 text-xs"
-                    onClick={() => setIsTableModalOpen(false)}
+                    disabled={isSavingTable}
+                    onClick={() => {
+                      setIsTableModalOpen(false);
+                      setTableModalError(null);
+                    }}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" size="sm" variant="default" className="min-h-11 h-11 px-5 text-xs">
-                    {editingTable ? "Save Changes" : "Create Table"}
+                  <Button
+                    type="submit"
+                    size="sm"
+                    variant="default"
+                    disabled={isSavingTable}
+                    className="min-h-11 h-11 px-5 text-xs bg-asador-burgundy hover:bg-asador-burgundyHover text-asador-ivory border border-asador-burgundy font-semibold shadow-sm"
+                  >
+                    {isSavingTable ? "Saving..." : editingTable ? "Save Changes" : "Create Table"}
                   </Button>
                 </div>
               </div>
