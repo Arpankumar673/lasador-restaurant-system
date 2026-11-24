@@ -32,11 +32,11 @@ export default async function CustomerTableMenuPage({ params }: CustomerPageProp
 
           <p className="text-xs text-asador-silver leading-relaxed">
             {resolution.error ||
-              "The scanned QR code is either expired, revoked, or no longer associated with an active dining table."}
+              "The scanned QR code has either been revoked, rotated by staff, or is not associated with an active dining table."}
           </p>
 
           <div className="p-3 rounded-asador bg-asador-deep border border-asador-border text-[11px] text-asador-copper">
-            Please ask your server to refresh the table QR code for L&apos;Asador – Grill & Brew.
+            Please ask your server for assistance or to provide the active table QR code for L&apos;Asador – Grill & Brew.
           </div>
         </div>
       </div>

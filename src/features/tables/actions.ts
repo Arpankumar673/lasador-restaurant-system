@@ -66,13 +66,15 @@ export async function createDiningTable(formData: FormData): Promise<TableAction
     return { success: false, error: tableError.message };
   }
 
-  // Generate initial secure QR token
+  // Generate initial secure QR token (permanent validity until rotated/revoked)
   const rawToken = generateSecureQrToken();
   const tokenHash = hashQrToken(rawToken);
 
   const { error: tokenError } = await supabase.from("table_qr_tokens").insert({
     table_id: newTable.id,
     token_hash: tokenHash,
+    raw_token: rawToken,
+    expires_at: null,
     is_active: true,
   });
 
@@ -205,13 +207,15 @@ export async function regenerateQrToken(tableId: string): Promise<TableActionRes
     .eq("table_id", tableId)
     .eq("is_active", true);
 
-  // 2. Generate new high-entropy token
+  // 2. Generate new high-entropy token (permanent validity until rotated/revoked)
   const rawToken = generateSecureQrToken();
   const tokenHash = hashQrToken(rawToken);
 
   const { error: insertError } = await supabase.from("table_qr_tokens").insert({
     table_id: tableId,
     token_hash: tokenHash,
+    raw_token: rawToken,
+    expires_at: null,
     is_active: true,
   });
 
@@ -269,22 +273,27 @@ export async function revokeQrToken(tableId: string): Promise<TableActionResult>
 
 /**
  * Resolves a raw QR token from customer scanning into an active Dining Table and Table Session.
- * Verifies token hash, checks table availability, and retrieves or creates an active session.
+ * Table QR tokens are permanent until explicitly rotated or revoked by staff.
+ * Validates token hash, checks table availability, and retrieves or creates an active session.
  */
 export async function resolveTableByQrToken(rawToken: string) {
-  if (!rawToken || rawToken.length < 16) {
+  if (!rawToken || rawToken.trim().length < 8) {
     return { valid: false, error: "Invalid QR code format." };
   }
 
-  const tokenHash = hashQrToken(rawToken);
+  const trimmedToken = rawToken.trim();
+  const tokenHash = hashQrToken(trimmedToken);
   const supabase = createAdminClient();
 
   // Find active, unrevoked QR token
-  const { data: tokenRecord, error: tokenError } = await supabase
+  // 1. Primary cryptographic lookup: match token_hash against SHA-256(trimmedToken)
+  let { data: tokenRecord, error: tokenError } = await supabase
     .from("table_qr_tokens")
     .select(`
       id,
       table_id,
+      token_hash,
+      raw_token,
       is_active,
       revoked_at,
       dining_table:dining_tables (
@@ -301,8 +310,98 @@ export async function resolveTableByQrToken(rawToken: string) {
     .is("revoked_at", null)
     .maybeSingle();
 
+  // 2. Direct match on stored raw_token (if available)
+  if (!tokenRecord) {
+    const { data: rawRecord } = await supabase
+      .from("table_qr_tokens")
+      .select(`
+        id,
+        table_id,
+        token_hash,
+        raw_token,
+        is_active,
+        revoked_at,
+        dining_table:dining_tables (
+          id,
+          table_number,
+          label,
+          zone,
+          capacity,
+          is_active
+        )
+      `)
+      .eq("raw_token", trimmedToken)
+      .eq("is_active", true)
+      .is("revoked_at", null)
+      .maybeSingle();
+
+    if (rawRecord) {
+      tokenRecord = rawRecord;
+    }
+  }
+
+  // 3. Direct match on token_hash (e.g. if QR code was encoded with direct token hash)
+  if (!tokenRecord) {
+    const { data: directHashRecord } = await supabase
+      .from("table_qr_tokens")
+      .select(`
+        id,
+        table_id,
+        token_hash,
+        raw_token,
+        is_active,
+        revoked_at,
+        dining_table:dining_tables (
+          id,
+          table_number,
+          label,
+          zone,
+          capacity,
+          is_active
+        )
+      `)
+      .eq("token_hash", trimmedToken)
+      .eq("is_active", true)
+      .is("revoked_at", null)
+      .maybeSingle();
+
+    if (directHashRecord) {
+      tokenRecord = directHashRecord;
+    }
+  }
+
+  // 4. Prefix match on token_hash (for tokens >= 16 chars, e.g. 32-char prefix)
+  if (!tokenRecord && trimmedToken.length >= 16) {
+    const { data: prefixRecords } = await supabase
+      .from("table_qr_tokens")
+      .select(`
+        id,
+        table_id,
+        token_hash,
+        raw_token,
+        is_active,
+        revoked_at,
+        dining_table:dining_tables (
+          id,
+          table_number,
+          label,
+          zone,
+          capacity,
+          is_active
+        )
+      `)
+      .eq("is_active", true)
+      .is("revoked_at", null)
+      .ilike("token_hash", `${trimmedToken}%`)
+      .limit(1);
+
+    if (prefixRecords && prefixRecords.length > 0) {
+      tokenRecord = prefixRecords[0];
+    }
+  }
+
   if (tokenError || !tokenRecord || !tokenRecord.dining_table) {
-    return { valid: false, error: "QR code is expired, revoked, or invalid. Please request staff assistance." };
+    return { valid: false, error: "This table QR code has been revoked or is unrecognized. Please request staff assistance." };
   }
 
   const table = Array.isArray(tokenRecord.dining_table)

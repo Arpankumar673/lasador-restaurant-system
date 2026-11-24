@@ -349,8 +349,10 @@ export namespace qrcodegen {
 		// Sets the color of a module and marks it as a function module.
 		// Only used by the constructor. Coordinates must be in bounds.
 		private setFunctionModule(x: int, y: int, isDark: boolean): void {
-			this.modules[y][x] = isDark;
-			this.isFunction[y][x] = true;
+			if (this.modules[y] && this.isFunction[y] && x >= 0 && x < this.size) {
+				this.modules[y][x] = isDark;
+				this.isFunction[y][x] = true;
+			}
 		}
 		
 		

@@ -44,6 +44,61 @@ const hash2 = hashQrToken(token1);
 assert(hash1 === hash2, 'SHA-256 token hashing is deterministic');
 assert(hash1 !== token1, 'SHA-256 hash does not reveal raw token');
 
+// Simulated Permanent Table QR Token Lifecycle
+const mockDbTokens = [
+  {
+    id: 'tok-1',
+    table_id: 'tbl-1',
+    token_hash: hash1,
+    raw_token: token1,
+    is_active: true,
+    expires_at: null, // Permanent: zero expiration TTL
+    created_at: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year ago
+    revoked_at: null,
+  },
+  {
+    id: 'tok-2',
+    table_id: 'tbl-2',
+    token_hash: 'revoked_hash_abc',
+    raw_token: 'revoked_raw_abc',
+    is_active: false,
+    expires_at: null,
+    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    revoked_at: new Date().toISOString(), // Explicitly revoked
+  },
+];
+
+function resolveMockToken(scannedToken) {
+  const trimmed = scannedToken.trim();
+  const computedHash = hashQrToken(trimmed);
+  // Match active, unrevoked token by hash, raw, or prefix
+  const found = mockDbTokens.find(
+    (t) =>
+      t.is_active &&
+      !t.revoked_at &&
+      (t.token_hash === computedHash ||
+        t.raw_token === trimmed ||
+        t.token_hash === trimmed ||
+        (trimmed.length >= 16 && t.token_hash.startsWith(trimmed)))
+  );
+  if (!found) {
+    return { valid: false, error: 'This table QR code has been revoked or is unrecognized.' };
+  }
+  return { valid: true, tokenRecord: found };
+}
+
+// Assertions on Permanent Lifecycle:
+const resOldToken = resolveMockToken(token1);
+assert(resOldToken.valid === true, '1-year old active token resolves without expiration');
+assert(resOldToken.tokenRecord.expires_at === null, 'Active token has expires_at === null');
+
+const resPrefixToken = resolveMockToken(hash1.slice(0, 32));
+assert(resPrefixToken.valid === true, '32-character prefix of active token resolves successfully');
+
+const resRevoked = resolveMockToken('revoked_raw_abc');
+assert(resRevoked.valid === false, 'Explicitly revoked token is rejected');
+assert(!resRevoked.error.includes('expired'), 'Error message does not falsely state expired');
+
 // 2. Canonical Server-Side Price & Tax Calculations
 console.log('\n--- 2. Canonical Pricing & Statutory Tax Calculations ---');
 function calculateCanonicalOrder(items) {

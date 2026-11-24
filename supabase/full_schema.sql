@@ -413,17 +413,20 @@ CREATE TRIGGER trigger_dining_tables_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION set_updated_at();
 
--- 10. Table QR Tokens Table (Lifecycle & Revocation, Hashed Secrets)
+-- 10. Table QR Tokens Table (Lifecycle & Revocation, Permanent Validity)
 CREATE TABLE IF NOT EXISTS table_qr_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   table_id UUID NOT NULL REFERENCES dining_tables(id) ON DELETE CASCADE,
   token_hash TEXT NOT NULL UNIQUE,
+  raw_token TEXT,
+  expires_at TIMESTAMPTZ,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   revoked_at TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_table_qr_tokens_hash ON table_qr_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_table_qr_tokens_raw_token ON table_qr_tokens(raw_token) WHERE raw_token IS NOT NULL;
 -- Enforce only one active QR token per table at any time
 CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_qr_token_per_table
   ON table_qr_tokens(table_id)

@@ -98,7 +98,11 @@ export function TableManagementView({
 
   const openQrModal = (table: FullTable, rawToken?: string) => {
     try {
-      const token = rawToken || table.active_token?.token_hash?.slice(0, 32) || "demo-qr-token";
+      const token =
+        rawToken ||
+        table.active_token?.raw_token ||
+        table.active_token?.token_hash ||
+        "demo-qr-token";
       const origin = typeof window !== "undefined" ? window.location.origin : "https://lasador.in";
       const customerUrl = `${origin}/t/${token}`;
       const svg = generateQrSvg(customerUrl, {

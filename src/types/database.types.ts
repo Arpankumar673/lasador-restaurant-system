@@ -544,6 +544,8 @@ export interface Database {
           id: string;
           table_id: string;
           token_hash: string;
+          raw_token: string | null;
+          expires_at: string | null;
           is_active: boolean;
           created_at: string;
           revoked_at: string | null;
@@ -552,6 +554,8 @@ export interface Database {
           id?: string;
           table_id: string;
           token_hash: string;
+          raw_token?: string | null;
+          expires_at?: string | null;
           is_active?: boolean;
           created_at?: string;
           revoked_at?: string | null;
@@ -560,6 +564,8 @@ export interface Database {
           id?: string;
           table_id?: string;
           token_hash?: string;
+          raw_token?: string | null;
+          expires_at?: string | null;
           is_active?: boolean;
           created_at?: string;
           revoked_at?: string | null;

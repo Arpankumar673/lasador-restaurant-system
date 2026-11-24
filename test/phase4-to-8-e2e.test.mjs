@@ -110,6 +110,17 @@ assert("qr.ts exports hashQrToken", qrUtils.includes("export function hashQrToke
 assert("qr.ts exports generateQrSvg", qrUtils.includes("export function generateQrSvg"));
 assert("qr.ts has zero npm package imports other than standard crypto", !qrUtils.includes("from 'qrcode'"));
 
+// Table QR Tokens Permanent Lifecycle Verification
+const permMigration = fs.readFileSync("supabase/migrations/20261124000001_make_table_qr_tokens_permanent.sql", "utf-8");
+assert("Migration explicitly ensures expires_at is nullable without default TTL", permMigration.includes("ALTER COLUMN expires_at DROP DEFAULT"));
+assert("Migration adds raw_token column for full view and print capability", permMigration.includes("raw_token TEXT"));
+
+const tableActions = fs.readFileSync("src/features/tables/actions.ts", "utf-8");
+assert("createDiningTable sets expires_at: null for permanent validity", tableActions.includes("expires_at: null"));
+assert("regenerateQrToken revokes old active tokens with revoked_at timestamp", tableActions.includes('revoked_at: new Date().toISOString()'));
+assert("resolveTableByQrToken has zero time-based expiration check", !tableActions.includes("expires_at <") && !tableActions.includes("gt('expires_at'"));
+assert("resolveTableByQrToken accurately attributes revoked/unrecognized error without false expiry", tableActions.includes("This table QR code has been revoked or is unrecognized"));
+
 // --------------------------------------------------------------------------------
 // 4. Server-Side Pricing, Tax Calculation & Snapshots
 // --------------------------------------------------------------------------------
