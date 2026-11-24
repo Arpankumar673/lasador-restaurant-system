@@ -132,7 +132,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0B0A] text-asador-parchment p-4 sm:p-6 space-y-6">
+    <div className="min-h-screen bg-asador-bg text-asador-parchment p-4 sm:p-6 space-y-6">
       {/* Top Console Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-asador-border">
         <div className="flex items-center space-x-3">
@@ -218,7 +218,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
             return (
               <div
                 key={order.id}
-                className={`rounded-asador-lg border bg-[#1A1614] shadow-2xl flex flex-col justify-between overflow-hidden transition-all ${
+                className={`rounded-asador-lg border bg-asador-card shadow-2xl flex flex-col justify-between overflow-hidden transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] ${
                   isUrgent
                     ? "border-asador-flame ring-1 ring-asador-flame"
                     : isWarning
@@ -233,7 +233,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                       ? "bg-asador-flame/20 border-asador-flame/40 text-asador-flame"
                       : isWarning
                       ? "bg-asador-malt/15 border-asador-malt/30 text-asador-malt"
-                      : "bg-[#0D0B0A] border-asador-border text-asador-parchment"
+                      : "bg-asador-deep border-asador-border text-asador-parchment"
                   }`}
                 >
                   <div>
@@ -285,6 +285,9 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <span className="font-bold text-sm text-asador-parchment">
                                 {item.product_name_snapshot}
                               </span>
+                              {isPrep && (
+                                <span className="h-2 w-2 rounded-full bg-asador-ochreText animate-pulse-calm shrink-0" title="Actively cooking" />
+                              )}
                             </div>
 
                             {item.variant_name_snapshot && (
@@ -345,7 +348,7 @@ export function KitchenDisplayView({ initialItems, canUpdate }: KitchenDisplayVi
                               <Button
                                 size="sm"
                                 variant="secondary"
-                                className="min-h-11 h-11 text-xs font-bold w-full border-[#5dd974]/40 text-[#5dd974]"
+                                className="min-h-11 h-11 text-xs font-bold w-full border-asador-emeraldBorder text-asador-emeraldText bg-asador-emerald/20 hover:bg-asador-emerald/30"
                                 onClick={() => handleStatusAdvance(item.id, "ready")}
                               >
                                 <Check className="h-4 w-4 mr-1.5" /> Handed to Server

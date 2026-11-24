@@ -16,7 +16,7 @@ export const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "rounded-asador-lg border border-asador-border bg-asador-card text-asador-parchment shadow-card-elevation",
+        "rounded-asador-lg border border-asador-border bg-asador-card text-asador-parchment shadow-card-elevation transition-all duration-300 ease-luxury-decel",
         glowStyles[glow],
         className
       )}

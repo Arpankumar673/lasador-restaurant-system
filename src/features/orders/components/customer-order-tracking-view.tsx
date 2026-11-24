@@ -175,7 +175,7 @@ export function CustomerOrderTrackingView({ token, initialOrder }: OrderTracking
         {/* Bill Notification Message */}
         {billMessage && (
           <div className="rounded-asador border border-asador-hops/40 bg-asador-hops/15 p-3 text-xs text-asador-parchment flex items-center space-x-2">
-            <CheckCircle2 className="h-4 w-4 text-[#5dd974] shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-asador-emeraldText shrink-0" />
             <span>{billMessage}</span>
           </div>
         )}

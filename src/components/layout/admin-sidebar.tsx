@@ -110,7 +110,7 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
   });
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-asador-border bg-asador-deep/90 shrink-0">
+    <aside className="hidden lg:flex w-64 flex-col border-r border-asador-border bg-asador-surface/60 backdrop-blur-sm shrink-0">
       <div className="flex flex-col flex-1 p-4 space-y-6">
         <div className="space-y-1">
           <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-asador-ash">
@@ -127,9 +127,9 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
                   href={item.href}
                   prefetch={false}
                   className={cn(
-                    "group flex items-center justify-between rounded-asador px-3 py-2.5 text-sm font-medium transition-all",
+                    "group flex items-center justify-between rounded-asador px-3 py-2.5 text-sm font-medium transition-all duration-200 ease-luxury-decel",
                     isActive
-                      ? "bg-asador-surface text-asador-ember border-l-2 border-asador-ember font-semibold"
+                      ? "bg-asador-surface text-asador-ember border-l-2 border-asador-ember font-semibold shadow-[inset_0_1px_0_0_rgba(244,239,230,0.06)]"
                       : "text-asador-silver hover:bg-asador-surface/50 hover:text-asador-parchment"
                   )}
                 >

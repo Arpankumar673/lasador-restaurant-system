@@ -104,7 +104,7 @@ export function TableManagementView({
       const svg = generateQrSvg(customerUrl, {
         size: 260,
         margin: 3,
-        darkColor: "#1A1614",
+        darkColor: "#0F0D0B",
         lightColor: "#FFFFFF",
       });
 
@@ -313,8 +313,8 @@ export function TableManagementView({
           return (
             <Card
               key={table.id}
-              className={`border-asador-border bg-asador-card overflow-hidden flex flex-col justify-between transition-all ${
-                !table.is_active ? "opacity-60 border-dashed" : "hover:border-asador-copper/60"
+              className={`border-asador-border bg-asador-card overflow-hidden flex flex-col justify-between transition-all duration-300 ease-luxury-decel hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] ${
+                !table.is_active ? "opacity-60 border-dashed" : ""
               }`}
             >
               <div>
@@ -353,9 +353,14 @@ export function TableManagementView({
                     <div className="flex items-center space-x-1.5 min-w-0">
                       <QrCode className="h-3.5 w-3.5 text-asador-ember shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-asador-parchment block truncate">
-                          {hasActiveToken ? "QR Active" : "No QR"}
-                        </span>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-asador-parchment block truncate">
+                            {hasActiveToken ? "QR Active" : "No QR"}
+                          </span>
+                          {hasActiveToken && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-asador-emeraldText animate-pulse-calm shrink-0" />
+                          )}
+                        </div>
                         <span className="text-[9px] sm:text-[10px] text-asador-silver font-mono block truncate max-w-[100px] sm:max-w-[140px]">
                           {hasActiveToken ? "SHA-256" : "Revoked"}
                         </span>

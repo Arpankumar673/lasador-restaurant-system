@@ -181,7 +181,7 @@ export function OperationsView({
           }`}
         >
           {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4 text-[#5dd974] shrink-0 mt-0.5" />
+            <CheckCircle2 className="h-4 w-4 text-asador-emeraldText shrink-0 mt-0.5" />
           ) : (
             <AlertCircle className="h-4 w-4 text-asador-ember shrink-0 mt-0.5" />
           )}
@@ -224,7 +224,7 @@ export function OperationsView({
             <CardDescription className="text-[10px] sm:text-xs uppercase tracking-wider text-asador-silver truncate">
               Plated & Ready
             </CardDescription>
-            <CardTitle className="text-xl sm:text-2xl font-bold text-[#5dd974] font-mono">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-asador-emeraldText font-mono">
               {readyCount}
             </CardTitle>
           </CardHeader>

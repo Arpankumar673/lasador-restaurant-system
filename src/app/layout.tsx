@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1A1614",
+  themeColor: "#0F0D0B",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -36,8 +36,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark scroll-smooth">
-      <body className="min-h-screen bg-asador-bg text-asador-parchment antialiased selection:bg-asador-ember selection:text-asador-parchment overflow-x-hidden min-w-0 w-full">
-        {children}
+      <body className="min-h-screen bg-asador-bg text-asador-parchment antialiased selection:bg-asador-ember selection:text-asador-parchment overflow-x-hidden min-w-0 w-full relative">
+        <div className="paper-grain" aria-hidden="true" />
+        <div className="pointer-events-none fixed inset-0 z-0 hearth-glow" aria-hidden="true" />
+        <div className="relative z-10 min-h-screen flex flex-col">
+          {children}
+        </div>
       </body>
     </html>
   );

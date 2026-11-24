@@ -51,7 +51,7 @@ export function AdminHeader({ staff }: AdminHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-asador-border bg-asador-deep/95 px-3 sm:px-6 backdrop-blur-md">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-asador-border/80 bg-asador-bg/85 px-3 sm:px-6 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
         {/* Left: Mobile hamburger trigger & Brand logo */}
         <div className="flex items-center space-x-2 sm:space-x-3">
           {staff && (

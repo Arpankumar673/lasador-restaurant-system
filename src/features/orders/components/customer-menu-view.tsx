@@ -348,9 +348,9 @@ export function CustomerMenuView({
                 <div
                   key={product.id}
                   onClick={() => product.is_available && openCustomizer(product)}
-                  className={`rounded-asador border border-asador-border bg-asador-card p-3 sm:p-4 flex flex-col justify-between gap-3 transition-all ${
+                  className={`rounded-asador border border-asador-border bg-asador-card p-3 sm:p-4 flex flex-col justify-between gap-3 transition-all duration-300 ease-luxury-decel ${
                     product.is_available
-                      ? "cursor-pointer hover:border-asador-copper/60 active:scale-[0.99]"
+                      ? "cursor-pointer hover:-translate-y-0.5 hover:border-asador-copper/60 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] active:scale-[0.985]"
                       : "opacity-50 cursor-not-allowed"
                   }`}
                 >

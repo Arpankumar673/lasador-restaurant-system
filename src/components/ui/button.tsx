@@ -29,21 +29,21 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-asador transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-asador-ember focus-visible:ring-offset-2 focus-visible:ring-offset-asador-deep disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
+      "inline-flex items-center justify-center font-medium rounded-asador transition-all duration-200 ease-luxury-decel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-asador-ember focus-visible:ring-offset-2 focus-visible:ring-offset-asador-deep disabled:opacity-50 disabled:pointer-events-none active:scale-[0.985]";
 
     const variantStyles = {
       default:
         "bg-asador-ember text-asador-parchment hover:bg-asador-flame shadow-ember-glow font-semibold",
       flame:
-        "bg-asador-flame text-asador-parchment hover:bg-[#963004] font-semibold",
+        "bg-asador-flame text-asador-parchment hover:bg-[#c86d3b] font-semibold",
       copper:
-        "bg-asador-copper text-asador-deep hover:bg-[#c47c38] shadow-copper-glow font-semibold",
+        "bg-asador-copper text-asador-deep hover:bg-[#e0b26b] shadow-copper-glow font-semibold",
       malt:
-        "bg-asador-malt text-asador-deep hover:bg-[#e2b46b] shadow-malt-glow font-semibold",
+        "bg-asador-malt text-asador-deep hover:bg-[#e0b26b] shadow-malt-glow font-semibold",
       outline:
-        "border border-asador-border bg-transparent text-asador-parchment hover:border-asador-ember hover:bg-asador-surface hover:text-asador-ember",
+        "border border-asador-border bg-transparent text-asador-parchment hover:border-asador-copper/60 hover:bg-asador-surface hover:text-asador-parchment",
       secondary:
-        "bg-asador-surface text-asador-parchment hover:bg-asador-surfaceHover border border-asador-borderMuted",
+        "bg-asador-surface text-asador-parchment hover:bg-asador-surfaceHover border border-asador-border",
       ghost:
         "bg-transparent text-asador-silver hover:text-asador-parchment hover:bg-asador-surface",
     };
