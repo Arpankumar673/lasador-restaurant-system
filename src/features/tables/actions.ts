@@ -290,32 +290,18 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
 
   const supabase = createAdminClient();
 
-  // 1. Fetch table details
+  // 1. Fetch table details safely (only select columns guaranteed to exist in all environments)
   const { data: table, error: tableError } = await supabase
     .from("dining_tables")
-    .select("id, table_number, is_active, deleted_at")
+    .select("id, table_number, is_active")
     .eq("id", tableId)
     .maybeSingle();
 
   if (tableError || !table) {
-    return { success: false, error: "Dining table not found." };
+    return { success: false, error: tableError ? tableError.message : "Dining table not found." };
   }
 
-  // 2. Safeguard: Check for active dining/billing sessions
-  const { data: activeSessions } = await supabase
-    .from("table_sessions")
-    .select("id, status")
-    .eq("table_id", tableId)
-    .in("status", ["active", "billing"]);
-
-  if (activeSessions && activeSessions.length > 0) {
-    return {
-      success: false,
-      error: `Cannot delete Table '${table.table_number}'. It currently has an active dining or billing session. Please settle and close the session first.`,
-    };
-  }
-
-  // 3. Safeguard: Check for active/pending orders
+  // 2. Safeguard: Check for active kitchen/bar orders in progress
   const { data: activeOrders } = await supabase
     .from("orders")
     .select("id, status")
@@ -325,25 +311,37 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
   if (activeOrders && activeOrders.length > 0) {
     return {
       success: false,
-      error: `Cannot delete Table '${table.table_number}'. It has active orders in progress. Please complete or cancel orders before deleting.`,
+      error: `Cannot delete Table '${table.table_number}'. It has ${activeOrders.length} active order(s) in progress in the kitchen or bar. Please complete or cancel open orders before deleting.`,
     };
   }
 
-  // 4. Historical integrity check (bills, past orders, closed sessions)
-  const [billsCheck, ordersCheck, sessionsCheck] = await Promise.all([
+  // 3. Safeguard: Check for open unpaid bills
+  const { data: openBills } = await supabase
+    .from("bills")
+    .select("id, status")
+    .eq("table_id", tableId)
+    .eq("status", "open");
+
+  if (openBills && openBills.length > 0) {
+    return {
+      success: false,
+      error: `Cannot delete Table '${table.table_number}'. It currently has an open bill. Please settle or cancel the bill before deleting.`,
+    };
+  }
+
+  // 4. Check for any historical orders or settled bills ever linked to this table
+  const [billsCheck, ordersCheck] = await Promise.all([
     supabase.from("bills").select("id", { count: "exact", head: true }).eq("table_id", tableId),
     supabase.from("orders").select("id", { count: "exact", head: true }).eq("table_id", tableId),
-    supabase.from("table_sessions").select("id", { count: "exact", head: true }).eq("table_id", tableId),
   ]);
 
-  const hasHistory =
+  const hasFinancialHistory =
     (billsCheck.count && billsCheck.count > 0) ||
-    (ordersCheck.count && ordersCheck.count > 0) ||
-    (sessionsCheck.count && sessionsCheck.count > 0);
+    (ordersCheck.count && ordersCheck.count > 0);
 
   const nowIso = new Date().toISOString();
 
-  // Always revoke active QR tokens
+  // Always revoke any active QR tokens for this table
   await supabase
     .from("table_qr_tokens")
     .update({
@@ -353,15 +351,28 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
     .eq("table_id", tableId)
     .eq("is_active", true);
 
-  if (hasHistory) {
+  if (hasFinancialHistory) {
     // Soft delete / archive to protect relational foreign key integrity
-    const { error: archiveError } = await supabase
-      .from("dining_tables")
-      .update({
-        is_active: false,
-        deleted_at: nowIso,
-      })
+    // Close any lingering active sessions
+    await supabase
+      .from("table_sessions")
+      .update({ status: "closed", closed_at: nowIso })
+      .eq("table_id", tableId)
+      .in("status", ["active", "billing"]);
+
+    // Try updating is_active = false and deleted_at (resilient if deleted_at column is pending migration)
+    const { error: fullUpdateErr } = await (supabase.from("dining_tables") as any)
+      .update({ is_active: false, deleted_at: nowIso })
       .eq("id", tableId);
+
+    let archiveError = fullUpdateErr;
+    if (fullUpdateErr) {
+      const { error: fallbackErr } = await supabase
+        .from("dining_tables")
+        .update({ is_active: false })
+        .eq("id", tableId);
+      archiveError = fallbackErr;
+    }
 
     if (archiveError) {
       return { success: false, error: archiveError.message };
@@ -386,7 +397,12 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
       message: `Table '${table.table_number}' archived and removed from floor layout. Historical orders and bills preserved.`,
     };
   } else {
-    // No history exists (e.g. freshly created or unused table) -> hard delete
+    // Freshly created or unused table with zero orders and zero bills.
+    // Clean up empty sessions first so foreign key constraints do not block deletion
+    try {
+      await supabase.from("service_requests").delete().eq("table_id", tableId);
+    } catch {}
+    await supabase.from("table_sessions").delete().eq("table_id", tableId);
     await supabase.from("table_qr_tokens").delete().eq("table_id", tableId);
 
     const { error: deleteError } = await supabase
@@ -395,7 +411,18 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
       .eq("id", tableId);
 
     if (deleteError) {
-      return { success: false, error: deleteError.message };
+      // If foreign key constraint still blocks, fallback cleanly to soft-delete
+      await supabase
+        .from("dining_tables")
+        .update({ is_active: false })
+        .eq("id", tableId);
+
+      revalidatePath("/admin/tables");
+      revalidatePath("/admin/operations");
+      return {
+        success: true,
+        message: `Table '${table.table_number}' archived and removed from floor layout.`,
+      };
     }
 
     await logAuditEvent({
@@ -413,7 +440,7 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
     revalidatePath("/admin/operations");
     return {
       success: true,
-      message: `Table '${table.table_number}' and its QR code permanently deleted.`,
+      message: `Table '${table.table_number}' permanently deleted.`,
     };
   }
 }

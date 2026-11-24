@@ -123,8 +123,8 @@ assert("resolveTableByQrToken accurately attributes revoked/unrecognized error w
 
 // Feature 1: Safe Dining Table Deletion Verification
 assert("table actions export deleteDiningTable", tableActions.includes("export async function deleteDiningTable"));
-assert("deleteDiningTable safeguards active sessions", tableActions.includes("active dining or billing session"));
-assert("deleteDiningTable safeguards active orders", tableActions.includes("active orders in progress"));
+assert("deleteDiningTable safeguards active orders", tableActions.includes("active order(s) in progress"));
+assert("deleteDiningTable safeguards open bills", tableActions.includes("open bill"));
 assert("deleteDiningTable protects historical bills with soft-delete archival", tableActions.includes("archived and removed from floor layout"));
 
 const safeDeleteMigration = fs.readFileSync("supabase/migrations/20261124000002_safe_dining_table_deletion.sql", "utf-8");

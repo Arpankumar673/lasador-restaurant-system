@@ -72,6 +72,7 @@ export function TableManagementView({
   const [editingTable, setEditingTable] = React.useState<FullTable | null>(null);
   const [tableToDelete, setTableToDelete] = React.useState<FullTable | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
 
   // QR Modal
   const [activeQrModal, setActiveQrModal] = React.useState<{
@@ -93,6 +94,9 @@ export function TableManagementView({
   // Filtered tables
   const filteredTables = React.useMemo(() => {
     return tables.filter((table) => {
+      // Exclude archived/deleted tables
+      if (table.is_active === false || table.deleted_at) return false;
+
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -725,6 +729,14 @@ export function TableManagementView({
               </p>
             </div>
 
+            {/* Error Message inside Modal */}
+            {deleteError && (
+              <div className="p-3 rounded-asador bg-red-500/10 border border-red-500/30 text-xs text-red-700 dark:text-red-400 flex items-start space-x-2 animate-in fade-in">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                <span className="leading-relaxed font-medium">{deleteError}</span>
+              </div>
+            )}
+
             <div className="flex items-center justify-end space-x-2 pt-2 pb-safe">
               <Button
                 type="button"
@@ -732,7 +744,10 @@ export function TableManagementView({
                 size="sm"
                 className="min-h-11 h-11 px-4 text-xs"
                 disabled={isDeleting}
-                onClick={() => setTableToDelete(null)}
+                onClick={() => {
+                  setTableToDelete(null);
+                  setDeleteError(null);
+                }}
               >
                 Cancel
               </Button>
@@ -743,15 +758,26 @@ export function TableManagementView({
                 disabled={isDeleting}
                 className="min-h-11 h-11 px-5 bg-asador-burgundy hover:bg-asador-burgundyHover text-asador-ivory border border-asador-burgundy text-xs font-semibold shadow-sm"
                 onClick={async () => {
+                  if (!tableToDelete) return;
                   setIsDeleting(true);
-                  const res = await deleteDiningTable(tableToDelete.id);
-                  setIsDeleting(false);
-                  if (res.success) {
-                    setTables((prev) => prev.filter((t) => t.id !== tableToDelete.id));
-                    setTableToDelete(null);
-                    showToast("success", res.message || "Table deleted.");
-                  } else {
-                    showToast("error", res.error || "Failed to delete table.");
+                  setDeleteError(null);
+                  try {
+                    const res = await deleteDiningTable(tableToDelete.id);
+                    setIsDeleting(false);
+                    if (res.success) {
+                      setTables((prev) => prev.filter((t) => t.id !== tableToDelete.id));
+                      setTableToDelete(null);
+                      setDeleteError(null);
+                      showToast("success", res.message || "Table deleted.");
+                    } else {
+                      setDeleteError(res.error || "Failed to delete table.");
+                      showToast("error", res.error || "Failed to delete table.");
+                    }
+                  } catch (err: any) {
+                    setIsDeleting(false);
+                    const errMsg = err?.message || "An unexpected error occurred while deleting table.";
+                    setDeleteError(errMsg);
+                    showToast("error", errMsg);
                   }
                 }}
               >
