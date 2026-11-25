@@ -23,6 +23,7 @@ import {
   AlertCircle,
   ArrowRight,
   Clock,
+  Lock,
   Star,
   Info,
 } from "lucide-react";
@@ -60,6 +61,9 @@ interface CustomerMenuViewProps {
   table: DiningTable;
   categories: Category[];
   products: CustomerProduct[];
+  deviceToken?: string;
+  holdExpiresAt?: string | null;
+  isOrderLocked?: boolean;
 }
 
 export function CustomerMenuView({
@@ -67,8 +71,47 @@ export function CustomerMenuView({
   table,
   categories,
   products,
+  deviceToken,
+  holdExpiresAt,
+  isOrderLocked = false,
 }: CustomerMenuViewProps) {
   const router = useRouter();
+
+  // Device lock & browsing countdown state
+  const [orderLocked, setOrderLocked] = React.useState<boolean>(Boolean(isOrderLocked));
+  const [secondsRemaining, setSecondsRemaining] = React.useState<number>(() => {
+    if (!holdExpiresAt) return 0;
+    const diff = Math.floor((new Date(holdExpiresAt).getTime() - Date.now()) / 1000);
+    return Math.max(0, diff);
+  });
+
+  // Client-side cookie and localStorage persistence for device token
+  React.useEffect(() => {
+    if (deviceToken) {
+      document.cookie = `lasador_device_${table.id}=${deviceToken}; path=/; max-age=86400; SameSite=Lax`;
+      document.cookie = `lasador_device_token=${deviceToken}; path=/; max-age=86400; SameSite=Lax`;
+      try {
+        localStorage.setItem(`lasador_device_${table.id}`, deviceToken);
+      } catch {}
+    }
+  }, [deviceToken, table.id]);
+
+  // Live countdown timer ticker
+  React.useEffect(() => {
+    if (orderLocked || !holdExpiresAt) return;
+    const interval = setInterval(() => {
+      const diff = Math.floor((new Date(holdExpiresAt).getTime() - Date.now()) / 1000);
+      const rem = Math.max(0, diff);
+      setSecondsRemaining(rem);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [orderLocked, holdExpiresAt]);
+
+  const formatCountdown = (totalSec: number) => {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [activeCategorySlug, setActiveCategorySlug] = React.useState<string>(categories[0]?.slug || "all");
@@ -225,6 +268,7 @@ export function CustomerMenuView({
     const res = await submitCustomerOrder({
       token,
       idempotencyKey,
+      deviceToken,
       items: cart.map((i) => ({
         productId: i.product.id,
         variantId: i.selectedVariant?.id || null,
@@ -237,6 +281,7 @@ export function CustomerMenuView({
     setIsSubmitting(false);
 
     if (res.success && res.orderId) {
+      setOrderLocked(true);
       setCart([]);
       setIsCartOpen(false);
       router.push(`/t/${token}/orders/${res.orderId}`);
@@ -273,10 +318,17 @@ export function CustomerMenuView({
             </div>
           </div>
 
-          <div className="text-right">
-            <Badge variant="copper" className="text-xs font-mono font-bold px-2 py-0.5">
-              TABLE {table.table_number}
-            </Badge>
+          <div className="text-right flex flex-col items-end">
+            <div className="flex items-center space-x-1.5">
+              <Badge variant="copper" className="text-xs font-mono font-bold px-2 py-0.5">
+                TABLE {table.table_number}
+              </Badge>
+              {orderLocked && (
+                <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#5C1D24]/10 border border-[#5C1D24]/20 text-[#70242D]">
+                  <Lock className="h-2.5 w-2.5 mr-1" /> Locked
+                </span>
+              )}
+            </div>
             <span className="text-[10px] text-asador-silver block mt-0.5">{table.zone}</span>
           </div>
         </div>
@@ -293,6 +345,40 @@ export function CustomerMenuView({
             />
           </div>
         </div>
+
+        {/* Browsing Countdown Timer Banner */}
+        {!orderLocked && holdExpiresAt && (
+          <div className="max-w-5xl mx-auto mt-2 sm:mt-2.5 p-2 sm:p-2.5 rounded-asador bg-[#F5EFE4] border border-[#DFD1B5] flex items-center justify-between text-xs animate-in fade-in">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-[#9A7432] shrink-0 animate-pulse" />
+              <span className="text-[#1E1916] text-[11px] sm:text-xs">
+                {secondsRemaining > 0 ? (
+                  <>
+                    Table reserved for ordering &bull;{" "}
+                    <strong className="font-mono text-[#5C1D24] font-bold">
+                      {formatCountdown(secondsRemaining)}
+                    </strong>{" "}
+                    remaining to place your first order
+                  </>
+                ) : (
+                  <span className="text-[#5C1D24] font-medium">
+                    Browsing hold expired. Tap to re-reserve this table.
+                  </span>
+                )}
+              </span>
+            </div>
+            {secondsRemaining <= 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-[11px] border-[#5C1D24] text-[#5C1D24] hover:bg-[#5C1D24]/10 shrink-0 ml-2"
+                onClick={() => router.refresh()}
+              >
+                Re-Reserve
+              </Button>
+            )}
+          </div>
+        )}
       </header>
 
       {/* =====================================================================

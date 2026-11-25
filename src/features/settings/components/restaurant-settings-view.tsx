@@ -216,6 +216,36 @@ export function RestaurantSettingsView({
                   <option value="false">Ordering Suspended (Offline)</option>
                 </select>
               </div>
+
+              {/* QR Browsing Hold Countdown */}
+              <div className="rounded-asador border border-asador-border p-4 bg-asador-surface/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-asador bg-[#B08943]/20 text-[#B08943]">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-asador-parchment block">
+                      QR Table Browsing Hold Countdown
+                    </span>
+                    <span className="text-xs text-asador-silver">
+                      Exclusive time a visitor holds a table to place their first order (default 300s = 5 mins) before releasing.
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    name="qr_scan_countdown_seconds"
+                    type="number"
+                    min="30"
+                    max="3600"
+                    step="30"
+                    defaultValue={settings?.qr_scan_countdown_seconds || 300}
+                    disabled={!canManage}
+                    className="w-24 text-center text-xs h-9"
+                  />
+                  <span className="text-xs text-asador-ash">sec</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
 

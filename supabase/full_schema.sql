@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS restaurant_settings (
   currency_symbol TEXT NOT NULL DEFAULT '₹',
   timezone TEXT NOT NULL DEFAULT 'Asia/Kolkata',
   is_ordering_enabled BOOLEAN NOT NULL DEFAULT true,
+  qr_scan_countdown_seconds INTEGER NOT NULL DEFAULT 300,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -441,6 +442,9 @@ CREATE TABLE IF NOT EXISTS table_sessions (
   session_token_hash TEXT NOT NULL UNIQUE,
   guest_count INTEGER DEFAULT 1 CHECK (guest_count > 0),
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'billing', 'closed')),
+  session_device_hash TEXT,
+  hold_expires_at TIMESTAMPTZ,
+  is_order_locked BOOLEAN NOT NULL DEFAULT false,
   opened_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   closed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

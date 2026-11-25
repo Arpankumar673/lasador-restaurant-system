@@ -140,6 +140,21 @@ const alertContextCode = fs.readFileSync("src/features/alerts/alert-context.tsx"
 assert("alert-context subscribes to Realtime orders INSERT", alertContextCode.includes('table: "orders"'));
 assert("alert-context supports repeating alarm interval", alertContextCode.includes("setInterval"));
 
+// Feature 3: Scan Countdown & Order-Triggered Device Lock Verification
+const scanCountdownMigration = fs.readFileSync("supabase/migrations/20261125000001_scan_countdown_and_device_lock.sql", "utf-8");
+assert("Migration adds qr_scan_countdown_seconds to restaurant_settings", scanCountdownMigration.includes("ADD COLUMN IF NOT EXISTS qr_scan_countdown_seconds"));
+assert("Migration adds session_device_hash to table_sessions", scanCountdownMigration.includes("ADD COLUMN IF NOT EXISTS session_device_hash"));
+assert("Migration adds hold_expires_at to table_sessions", scanCountdownMigration.includes("ADD COLUMN IF NOT EXISTS hold_expires_at"));
+assert("Migration adds is_order_locked to table_sessions", scanCountdownMigration.includes("ADD COLUMN IF NOT EXISTS is_order_locked"));
+
+assert("table actions export unlockTableSession", tableActions.includes("export async function unlockTableSession"));
+assert("resolveTableByQrToken implements browsing hold lifecycle", tableActions.includes("browsing_hold_owner") && tableActions.includes("browsing_hold_blocked"));
+assert("resolveTableByQrToken implements order locked lifecycle", tableActions.includes("order_locked_owner") && tableActions.includes("order_locked_blocked"));
+
+const orderActionsCode = fs.readFileSync("src/features/orders/actions.ts", "utf-8");
+assert("submitCustomerOrder enforces device lock check", orderActionsCode.includes("session.session_device_hash"));
+assert("submitCustomerOrder sets is_order_locked: true upon order placement", orderActionsCode.includes("is_order_locked: true"));
+
 // --------------------------------------------------------------------------------
 // 4. Server-Side Pricing, Tax Calculation & Snapshots
 // --------------------------------------------------------------------------------

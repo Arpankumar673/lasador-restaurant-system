@@ -45,6 +45,9 @@ export async function updateRestaurantSettings(formData: FormData): Promise<Sett
     currency_symbol: formData.get("currency_symbol") || "₹",
     timezone: formData.get("timezone") || "Asia/Kolkata",
     is_ordering_enabled: formData.get("is_ordering_enabled") === "true",
+    qr_scan_countdown_seconds: formData.get("qr_scan_countdown_seconds")
+      ? Number(formData.get("qr_scan_countdown_seconds"))
+      : 300,
   };
 
   const parsed = restaurantSettingsSchema.safeParse(rawData);

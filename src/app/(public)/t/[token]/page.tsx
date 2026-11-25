@@ -4,7 +4,11 @@ import {
   CustomerMenuView,
   CustomerProduct,
 } from "@/features/orders/components/customer-menu-view";
-import { AlertCircle, Flame } from "lucide-react";
+import {
+  TableBrowsingHoldView,
+  TableSessionLockedView,
+} from "@/features/orders/components/table-device-lock-views";
+import { AlertCircle } from "lucide-react";
 
 interface CustomerPageProps {
   params: {
@@ -15,7 +19,7 @@ interface CustomerPageProps {
 export default async function CustomerTableMenuPage({ params }: CustomerPageProps) {
   const { token } = params;
 
-  // 1. Resolve table & dining session
+  // 1. Resolve table, session, and device lock status
   const resolution = await resolveTableByQrToken(token);
 
   if (!resolution.valid || !resolution.table) {
@@ -44,9 +48,31 @@ export default async function CustomerTableMenuPage({ params }: CustomerPageProp
   }
 
   const { table } = resolution;
+
+  // 2. Enforce Device-Level Access Boundaries
+  // Case A: Table is in browsing hold by another guest's device
+  if (resolution.lockStatus === "browsing_hold_blocked") {
+    return (
+      <TableBrowsingHoldView
+        table={table}
+        holdExpiresAt={resolution.holdExpiresAt || null}
+      />
+    );
+  }
+
+  // Case B: Table session has placed an order and is locked to another guest's device
+  if (resolution.lockStatus === "order_locked_blocked") {
+    return (
+      <TableSessionLockedView
+        table={table}
+      />
+    );
+  }
+
+  // 3. Device owns the session (or hold just initiated for this visitor) -> Render Menu
   const supabase = createAdminClient();
 
-  // 2. Fetch active categories & products with variants & modifier groups
+  // Fetch active categories & products with variants & modifier groups
   const [categoriesRes, productsRes] = await Promise.all([
     supabase
       .from("categories")
@@ -102,6 +128,9 @@ export default async function CustomerTableMenuPage({ params }: CustomerPageProp
       table={table}
       categories={categories}
       products={products}
+      deviceToken={resolution.deviceToken}
+      holdExpiresAt={resolution.holdExpiresAt || null}
+      isOrderLocked={resolution.isOrderLocked || false}
     />
   );
 }

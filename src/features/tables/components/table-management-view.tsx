@@ -13,6 +13,7 @@ import {
   regenerateQrToken,
   revokeQrToken,
   deleteDiningTable,
+  unlockTableSession,
 } from "../actions";
 import { generateQrSvg } from "@/lib/utils/qr";
 import {
@@ -32,6 +33,9 @@ import {
   Check,
   X,
   ExternalLink,
+  Lock,
+  Unlock,
+  Clock,
 } from "lucide-react";
 
 type DiningTable = Database["public"]["Tables"]["dining_tables"]["Row"];
@@ -75,6 +79,9 @@ export function TableManagementView({
   const [tableToDelete, setTableToDelete] = React.useState<FullTable | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
+  const [tableToUnlock, setTableToUnlock] = React.useState<FullTable | null>(null);
+  const [isUnlocking, setIsUnlocking] = React.useState(false);
+  const [unlockError, setUnlockError] = React.useState<string | null>(null);
 
   // QR Modal
   const [activeQrModal, setActiveQrModal] = React.useState<{
@@ -345,10 +352,28 @@ export function TableManagementView({
                       {table.table_number}
                     </span>
                     <Badge
-                      variant={table.is_active ? (isOccupied ? "copper" : "hops") : "outline"}
+                      variant={
+                        !table.is_active
+                          ? "outline"
+                          : table.active_session?.is_order_locked
+                          ? "copper"
+                          : table.active_session?.hold_expires_at
+                          ? "malt"
+                          : isOccupied
+                          ? "copper"
+                          : "hops"
+                      }
                       className="text-[9px] sm:text-[10px] px-1.5 py-0.5 shrink-0"
                     >
-                      {table.is_active ? (isOccupied ? "Occupied" : "Available") : "Inactive"}
+                      {!table.is_active
+                        ? "Inactive"
+                        : table.active_session?.is_order_locked
+                        ? "Locked"
+                        : table.active_session?.hold_expires_at
+                        ? "Hold"
+                        : isOccupied
+                        ? "Occupied"
+                        : "Available"}
                     </Badge>
                   </div>
                   <CardDescription className="text-[10px] sm:text-xs text-asador-silver mt-0.5 truncate">
@@ -368,6 +393,42 @@ export function TableManagementView({
                       <span className="truncate">{table.capacity} Guests</span>
                     </div>
                   </div>
+
+                  {/* Active Session & Device Lock Status */}
+                  {table.active_session && table.active_session.status === "active" && (
+                    <div className="rounded-asador border border-[#E5DEC9] bg-[#FAF7F2] p-2 flex items-center justify-between gap-1.5 text-xs">
+                      <div className="flex items-center space-x-1.5 min-w-0">
+                        {table.active_session.is_order_locked ? (
+                          <Lock className="h-3.5 w-3.5 text-[#5C1D24] shrink-0" />
+                        ) : (
+                          <Clock className="h-3.5 w-3.5 text-[#9A7432] shrink-0 animate-pulse" />
+                        )}
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-semibold text-[#1E1916] block truncate">
+                            {table.active_session.is_order_locked ? "Order Locked" : "Browsing Hold"}
+                          </span>
+                          <span className="text-[9px] text-[#5E554C] block truncate">
+                            {table.active_session.is_order_locked ? "1 Device Bound" : "Countdown Active"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {canManage && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-6 px-2 text-[10px] border-[#5C1D24]/30 text-[#70242D] hover:bg-[#5C1D24]/10 shrink-0 font-medium"
+                          title="Release device lock or reset session"
+                          onClick={() => {
+                            setTableToUnlock(table);
+                            setUnlockError(null);
+                          }}
+                        >
+                          <Unlock className="h-2.5 w-2.5 mr-1" /> Unlock
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
                   {/* QR Token Status */}
                   <div className="rounded-asador border border-asador-sandBorder bg-asador-deep p-2 sm:p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
@@ -834,6 +895,112 @@ export function TableManagementView({
                 }}
               >
                 {isDeleting ? "Deleting..." : "Confirm Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          MODAL: UNLOCK / RESET SESSION
+          ===================================================================== */}
+      {tableToUnlock && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-sm rounded-asador border border-asador-border bg-asador-card p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="p-2 rounded-full bg-[#B08943]/20 border border-[#DFD1B5] text-[#9A7432] shrink-0 mt-0.5">
+                <Unlock className="h-5 w-5 text-[#9A7432]" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-asador-parchment">
+                  Unlock Table {tableToUnlock.table_number}?
+                </h3>
+                <p className="text-xs text-asador-silver mt-0.5">
+                  {tableToUnlock.zone} &bull; Capacity {tableToUnlock.capacity} guests
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-asador bg-asador-deep border border-asador-border text-xs text-asador-ash space-y-2">
+              <p className="leading-relaxed">
+                <strong className="text-asador-parchment font-semibold">
+                  {tableToUnlock.active_session?.is_order_locked ? "Release Device Lock:" : "Clear Browsing Hold:"}
+                </strong>{" "}
+                {tableToUnlock.active_session?.is_order_locked
+                  ? "This table is locked to one customer device. Releasing this lock allows a replacement phone or new guest to place orders for this table."
+                  : "This table is currently in an un-ordered countdown hold. Clearing this hold frees the table immediately for any new scan."}
+              </p>
+            </div>
+
+            {/* Error Message inside Modal */}
+            {unlockError && (
+              <div className="p-3 rounded-asador bg-red-500/10 border border-red-500/30 text-xs text-red-700 dark:text-red-400 flex items-start space-x-2 animate-in fade-in">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                <span className="leading-relaxed font-medium">{unlockError}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end space-x-2 pt-2 pb-safe">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-11 h-11 px-4 text-xs"
+                disabled={isUnlocking}
+                onClick={() => {
+                  setTableToUnlock(null);
+                  setUnlockError(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                disabled={isUnlocking}
+                className="min-h-11 h-11 px-5 bg-asador-burgundy hover:bg-asador-burgundyHover text-asador-ivory border border-asador-burgundy text-xs font-semibold shadow-sm"
+                onClick={async () => {
+                  if (!tableToUnlock) return;
+                  setIsUnlocking(true);
+                  setUnlockError(null);
+                  try {
+                    const res = await unlockTableSession(tableToUnlock.id);
+                    setIsUnlocking(false);
+                    if (res.success) {
+                      setTables((prev) =>
+                        prev.map((t) =>
+                          t.id === tableToUnlock.id
+                            ? {
+                                ...t,
+                                active_session: t.active_session
+                                  ? {
+                                      ...t.active_session,
+                                      is_order_locked: false,
+                                      session_device_hash: null,
+                                      hold_expires_at: null,
+                                    }
+                                  : null,
+                              }
+                            : t
+                        )
+                      );
+                      setTableToUnlock(null);
+                      setUnlockError(null);
+                      showToast("success", res.message || "Table session unlocked.");
+                    } else {
+                      setUnlockError(res.error || "Failed to unlock session.");
+                      showToast("error", res.error || "Failed to unlock session.");
+                    }
+                  } catch (err: any) {
+                    setIsUnlocking(false);
+                    const errMsg = err?.message || "An unexpected error occurred while unlocking table.";
+                    setUnlockError(errMsg);
+                    showToast("error", errMsg);
+                  }
+                }}
+              >
+                {isUnlocking ? "Unlocking..." : "Confirm Unlock"}
               </Button>
             </div>
           </div>

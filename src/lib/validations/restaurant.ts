@@ -18,6 +18,7 @@ export const restaurantSettingsSchema = z.object({
   currency_symbol: z.string().default("₹"),
   timezone: z.string().default("Asia/Kolkata"),
   is_ordering_enabled: z.boolean().default(true),
+  qr_scan_countdown_seconds: z.coerce.number().int().min(30, "Countdown must be at least 30 seconds").max(3600, "Countdown cannot exceed 3600 seconds (60 mins)").default(300),
 });
 
 export const businessHoursSchema = z.object({

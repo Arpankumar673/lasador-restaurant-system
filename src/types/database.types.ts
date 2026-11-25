@@ -70,6 +70,7 @@ export interface Database {
           currency_symbol: string;
           timezone: string;
           is_ordering_enabled: boolean;
+          qr_scan_countdown_seconds: number;
           created_at: string;
           updated_at: string;
         };
@@ -92,6 +93,7 @@ export interface Database {
           currency_symbol?: string;
           timezone?: string;
           is_ordering_enabled?: boolean;
+          qr_scan_countdown_seconds?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -114,6 +116,7 @@ export interface Database {
           currency_symbol?: string;
           timezone?: string;
           is_ordering_enabled?: boolean;
+          qr_scan_countdown_seconds?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -580,6 +583,9 @@ export interface Database {
           id: string;
           table_id: string;
           session_token_hash: string;
+          session_device_hash: string | null;
+          hold_expires_at: string | null;
+          is_order_locked: boolean;
           guest_count: number;
           status: string;
           opened_at: string;
@@ -591,6 +597,9 @@ export interface Database {
           id?: string;
           table_id: string;
           session_token_hash: string;
+          session_device_hash?: string | null;
+          hold_expires_at?: string | null;
+          is_order_locked?: boolean;
           guest_count?: number;
           status?: string;
           opened_at?: string;
@@ -602,6 +611,9 @@ export interface Database {
           id?: string;
           table_id?: string;
           session_token_hash?: string;
+          session_device_hash?: string | null;
+          hold_expires_at?: string | null;
+          is_order_locked?: boolean;
           guest_count?: number;
           status?: string;
           opened_at?: string;

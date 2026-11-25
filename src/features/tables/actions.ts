@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { getCurrentStaff } from "@/features/auth/server";
 import { hasPermission } from "@/features/auth/permissions";
@@ -14,6 +15,25 @@ export interface TableActionResult {
   message?: string;
   rawToken?: string;
   table?: any;
+}
+
+export type TableLockStatus =
+  | "browsing_hold_owner"
+  | "browsing_hold_blocked"
+  | "order_locked_owner"
+  | "order_locked_blocked";
+
+export interface TableResolutionResult {
+  valid: boolean;
+  error?: string;
+  table?: any;
+  session?: any;
+  deviceToken?: string;
+  isDeviceOwner?: boolean;
+  isOrderLocked?: boolean;
+  holdExpiresAt?: string | null;
+  countdownSeconds?: number;
+  lockStatus?: TableLockStatus;
 }
 
 const tableSchema = z.object({
@@ -584,7 +604,10 @@ export async function deleteDiningTable(tableId: string): Promise<TableActionRes
  * Table QR tokens are permanent until explicitly rotated or revoked by staff.
  * Validates token hash, checks table availability, and retrieves or creates an active session.
  */
-export async function resolveTableByQrToken(rawToken: string) {
+export async function resolveTableByQrToken(
+  rawToken: string,
+  providedDeviceToken?: string | null
+): Promise<TableResolutionResult> {
   if (!rawToken || rawToken.trim().length < 8) {
     return { valid: false, error: "Invalid QR code format." };
   }
@@ -720,7 +743,32 @@ export async function resolveTableByQrToken(rawToken: string) {
     return { valid: false, error: `Table '${table.table_number}' is currently inactive or archived.` };
   }
 
-  // Retrieve or open an active table session
+  // 5. Retrieve or open an active table session with device lock & countdown lifecycle
+  // Extract client device token from parameter or HttpOnly cookie
+  let clientDeviceToken = providedDeviceToken || null;
+  if (!clientDeviceToken) {
+    try {
+      const cookieStore = cookies();
+      clientDeviceToken =
+        cookieStore.get(`lasador_device_${table.id}`)?.value ||
+        cookieStore.get("lasador_device_token")?.value ||
+        null;
+    } catch {}
+  }
+
+  // Fetch admin-configured countdown duration (default: 300 seconds / 5 minutes)
+  let countdownSeconds = 300;
+  try {
+    const { data: settings } = await supabase
+      .from("restaurant_settings")
+      .select("qr_scan_countdown_seconds")
+      .eq("id", 1)
+      .maybeSingle();
+    if (settings && typeof settings.qr_scan_countdown_seconds === "number" && settings.qr_scan_countdown_seconds > 0) {
+      countdownSeconds = settings.qr_scan_countdown_seconds;
+    }
+  } catch {}
+
   let { data: session } = await supabase
     .from("table_sessions")
     .select("*")
@@ -730,14 +778,53 @@ export async function resolveTableByQrToken(rawToken: string) {
     .limit(1)
     .maybeSingle();
 
+  // If session is in browsing hold (is_order_locked = false) and countdown expired without any order:
+  // Automatically close/release the un-ordered hold so the table frees up for new visitors!
+  if (session && !session.is_order_locked && session.hold_expires_at) {
+    const isHoldExpired = new Date(session.hold_expires_at).getTime() <= Date.now();
+    if (isHoldExpired) {
+      const { count: orderCount } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("session_id", session.id);
+
+      if (!orderCount || orderCount === 0) {
+        await supabase
+          .from("table_sessions")
+          .update({
+            status: "closed",
+            closed_at: new Date().toISOString(),
+          })
+          .eq("id", session.id);
+
+        session = null;
+      } else {
+        // If an order already exists, ensure order lock is active
+        await supabase
+          .from("table_sessions")
+          .update({ is_order_locked: true, hold_expires_at: null })
+          .eq("id", session.id);
+        session.is_order_locked = true;
+        session.hold_expires_at = null;
+      }
+    }
+  }
+
+  // First Customer Scan: Open fresh session with browsing hold countdown
   if (!session) {
-    // Open new session
+    const activeDeviceToken = clientDeviceToken || generateSecureQrToken();
+    const sessionDeviceHash = hashQrToken(activeDeviceToken);
+    const holdExpiresAt = new Date(Date.now() + countdownSeconds * 1000).toISOString();
     const sessionTokenHash = hashQrToken(generateSecureQrToken());
+
     const { data: newSession, error: sessionError } = await supabase
       .from("table_sessions")
       .insert({
         table_id: table.id,
         session_token_hash: sessionTokenHash,
+        session_device_hash: sessionDeviceHash,
+        hold_expires_at: holdExpiresAt,
+        is_order_locked: false,
         status: "active",
         guest_count: 2,
       })
@@ -747,12 +834,160 @@ export async function resolveTableByQrToken(rawToken: string) {
     if (sessionError || !newSession) {
       return { valid: false, error: "Failed to initialize table dining session." };
     }
-    session = newSession;
+
+    return {
+      valid: true,
+      table,
+      session: newSession,
+      deviceToken: activeDeviceToken,
+      isDeviceOwner: true,
+      isOrderLocked: false,
+      holdExpiresAt,
+      countdownSeconds,
+      lockStatus: "browsing_hold_owner",
+    };
   }
 
-  return {
-    valid: true,
-    table,
-    session,
-  };
+  // Active session exists: Determine device ownership
+  const clientHash = clientDeviceToken ? hashQrToken(clientDeviceToken) : null;
+  let isDeviceOwner = false;
+  let activeDeviceToken = clientDeviceToken;
+
+  if (!session.session_device_hash) {
+    // If session has no device hash yet (e.g. legacy session or unlocked by staff), claim it
+    activeDeviceToken = clientDeviceToken || generateSecureQrToken();
+    const newHash = hashQrToken(activeDeviceToken);
+    await supabase
+      .from("table_sessions")
+      .update({ session_device_hash: newHash })
+      .eq("id", session.id);
+    session.session_device_hash = newHash;
+    isDeviceOwner = true;
+  } else {
+    isDeviceOwner = Boolean(clientHash && clientHash === session.session_device_hash);
+  }
+
+  if (session.is_order_locked) {
+    return {
+      valid: true,
+      table,
+      session,
+      deviceToken: isDeviceOwner ? (activeDeviceToken || undefined) : undefined,
+      isDeviceOwner,
+      isOrderLocked: true,
+      holdExpiresAt: null,
+      countdownSeconds,
+      lockStatus: isDeviceOwner ? "order_locked_owner" : "order_locked_blocked",
+    };
+  } else {
+    return {
+      valid: true,
+      table,
+      session,
+      deviceToken: isDeviceOwner ? (activeDeviceToken || undefined) : undefined,
+      isDeviceOwner,
+      isOrderLocked: false,
+      holdExpiresAt: session.hold_expires_at,
+      countdownSeconds,
+      lockStatus: isDeviceOwner ? "browsing_hold_owner" : "browsing_hold_blocked",
+    };
+  }
+}
+
+/**
+ * Unlocks or resets an active table session by staff/manager override on /admin/tables.
+ * - If orders exist on the session, it releases the device lock (is_order_locked = false, session_device_hash = null)
+ *   so another device or replacement phone can place orders.
+ * - If it is an un-ordered browsing hold, it immediately closes the session so the table is free for any new scan.
+ */
+export async function unlockTableSession(tableId: string): Promise<TableActionResult> {
+  const caller = await getCurrentStaff();
+  if (!caller || !hasPermission(caller.profile.role, "tables:manage")) {
+    return { success: false, error: "Unauthorized. Manager or Admin permission required." };
+  }
+
+  if (!tableId) {
+    return { success: false, error: "Table ID is required." };
+  }
+
+  const supabase = createAdminClient();
+
+  // Find active session for table
+  const { data: session, error: sessionFetchErr } = await supabase
+    .from("table_sessions")
+    .select("id, is_order_locked, session_device_hash, status")
+    .eq("table_id", tableId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (sessionFetchErr || !session) {
+    return { success: false, error: "No active dining session found for this table." };
+  }
+
+  // Check if orders exist for this session
+  const { count: orderCount } = await supabase
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .eq("session_id", session.id);
+
+  const nowIso = new Date().toISOString();
+
+  if (!orderCount || orderCount === 0) {
+    // Un-ordered hold: Close the session completely so the table is free
+    const { error: closeErr } = await supabase
+      .from("table_sessions")
+      .update({
+        status: "closed",
+        closed_at: nowIso,
+      })
+      .eq("id", session.id);
+
+    if (closeErr) {
+      return { success: false, error: closeErr.message };
+    }
+
+    await logAuditEvent({
+      actorId: caller.userId,
+      action: "table:session_reset",
+      entity: "table_sessions",
+      entityId: session.id,
+      details: { tableId, action: "hold_cleared" },
+    });
+
+    revalidatePath("/admin/tables");
+    revalidatePath("/admin/operations");
+    return {
+      success: true,
+      message: "Browsing hold cleared. Table is now available for new guests.",
+    };
+  } else {
+    // Orders exist: Release device lock so a replacement device can order
+    const { error: unlockErr } = await supabase
+      .from("table_sessions")
+      .update({
+        is_order_locked: false,
+        session_device_hash: null,
+        hold_expires_at: null,
+      })
+      .eq("id", session.id);
+
+    if (unlockErr) {
+      return { success: false, error: unlockErr.message };
+    }
+
+    await logAuditEvent({
+      actorId: caller.userId,
+      action: "table:session_unlock",
+      entity: "table_sessions",
+      entityId: session.id,
+      details: { tableId, action: "device_lock_released", orderCount },
+    });
+
+    revalidatePath("/admin/tables");
+    revalidatePath("/admin/operations");
+    return {
+      success: true,
+      message: "Device lock released. Any device can now add items to this table's order.",
+    };
+  }
 }

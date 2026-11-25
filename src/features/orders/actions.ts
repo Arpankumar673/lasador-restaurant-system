@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAuditEvent } from "@/features/audit/logger";
 import { resolveTableByQrToken } from "@/features/tables/actions";
+import { hashQrToken } from "@/lib/utils/qr";
 import { ItemStation } from "@/types/database.types";
 import {
   calculateLineSubtotal,
@@ -23,6 +25,7 @@ export interface OrderItemSubmission {
 export interface CustomerOrderPayload {
   token: string;
   idempotencyKey: string;
+  deviceToken?: string;
   items: OrderItemSubmission[];
   specialInstructions?: string | null;
 }
@@ -45,6 +48,7 @@ const orderItemSchema = z.object({
 const customerOrderSchema = z.object({
   token: z.string().min(10),
   idempotencyKey: z.string().min(10),
+  deviceToken: z.string().optional(),
   items: z.array(orderItemSchema).min(1, "Order must contain at least one item"),
   specialInstructions: z.string().max(500).optional().nullable(),
 });
@@ -74,6 +78,39 @@ export async function submitCustomerOrder(
 
   const { table, session } = resolution;
   const supabase = createAdminClient();
+
+  // Resolve client device token
+  let clientDeviceToken = parsed.data.deviceToken || null;
+  if (!clientDeviceToken) {
+    try {
+      const cookieStore = cookies();
+      clientDeviceToken =
+        cookieStore.get(`lasador_device_${table.id}`)?.value ||
+        cookieStore.get("lasador_device_token")?.value ||
+        null;
+    } catch {}
+  }
+
+  // 1a. Device Lock Verification
+  if (session.session_device_hash) {
+    const clientHash = clientDeviceToken ? hashQrToken(clientDeviceToken) : null;
+    if (!clientHash || clientHash !== session.session_device_hash) {
+      return {
+        success: false,
+        error: "This table is locked to another ordering device. Only the device that reserved this table can place orders.",
+      };
+    }
+  }
+
+  // 1b. Hold Expiration Verification (before first order lock)
+  if (!session.is_order_locked && session.hold_expires_at) {
+    if (new Date(session.hold_expires_at).getTime() <= Date.now()) {
+      return {
+        success: false,
+        error: "Your table browsing hold has expired. Please refresh the page to start a new order.",
+      };
+    }
+  }
 
   // 2. Check Idempotency: Return existing order if key was already submitted
   const { data: existingOrder } = await supabase
@@ -136,8 +173,20 @@ export async function submitCustomerOrder(
         },
       });
 
+      // Permanently lock session to this ordering device and clear hold countdown
+      await supabase
+        .from("table_sessions")
+        .update({
+          is_order_locked: true,
+          hold_expires_at: null,
+          session_device_hash: session.session_device_hash || (clientDeviceToken ? hashQrToken(clientDeviceToken) : null),
+        })
+        .eq("id", session.id);
+
       revalidatePath("/admin/operations");
       revalidatePath("/admin/orders");
+      revalidatePath("/admin/tables");
+      revalidatePath(`/t/${token}`);
       revalidatePath("/kitchen");
       revalidatePath("/bar");
 
@@ -329,10 +378,22 @@ export async function submitCustomerOrder(
     },
   });
 
+  // Permanently lock session to this ordering device and clear hold countdown
+  await supabase
+    .from("table_sessions")
+    .update({
+      is_order_locked: true,
+      hold_expires_at: null,
+      session_device_hash: session.session_device_hash || (clientDeviceToken ? hashQrToken(clientDeviceToken) : null),
+    })
+    .eq("id", session.id);
+
   // Revalidate operational dashboards
   revalidatePath("/kitchen");
   revalidatePath("/bar");
   revalidatePath("/admin/operations");
+  revalidatePath("/admin/tables");
+  revalidatePath(`/t/${token}`);
   revalidatePath(`/t/${token}/orders/${newOrder.id}`);
 
   return {
